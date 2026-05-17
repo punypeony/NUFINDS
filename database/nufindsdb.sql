@@ -117,7 +117,7 @@ ALTER TABLE lost
 --
 ALTER TABLE studentinfo
   ADD PRIMARY KEY (StudentNumber),
-  ADD UNIQUE KEY UNIQUE (StudentEmail);
+  ADD UNIQUE KEY StudentEmail_UNIQUE (StudentEmail);
 
 --
 -- AUTO_INCREMENT for dumped tables
