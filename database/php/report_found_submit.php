@@ -1,18 +1,24 @@
 <?php
 require_once 'db_connect.php';
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ReportFound.html');
     exit;
 }
 
-$studentNumber = trim($_POST['StudentNumber'] ?? '');
+$studentNumber = trim($_SESSION['StudentNumber'] ?? '');
 $location = trim($_POST['Location'] ?? '');
 $dateFound = trim($_POST['DateFound'] ?? '');
 $category = trim($_POST['Category'] ?? '');
 $description = trim($_POST['Description'] ?? '');
 
-if ($studentNumber === '' || $location === '' || $dateFound === '' || $category === '' || $description === '') {
+if ($studentNumber === '') {
+    header('Location: ../../pages/login.html');
+    exit;
+}
+
+if ($location === '' || $dateFound === '' || $category === '' || $description === '') {
     $error = urlencode('Please fill in all required fields.');
     header('Location: ReportFound.html?error=' . $error);
     exit;
