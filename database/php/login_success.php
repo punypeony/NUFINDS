@@ -23,7 +23,7 @@ $studentName = htmlspecialchars($_SESSION['StudentName'] ?? 'Student', ENT_QUOTE
   <div class="message-box">
     <h1>Welcome, <?= $studentName ?>!</h1>
     <p>You have successfully logged in.</p>
-    <a href="../../pages/home.html">Back to Home</a>
+    <a href="../../pages/home.php">Back to Home</a>
   </div>
 </body>
 </html>

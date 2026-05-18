@@ -17,7 +17,7 @@ $error = $error ?? null;
 </div>
 
 <!-- BACK ICON BUTTON -->
-<a href="../../pages/home.html" class="back-icon">
+<a href="../../pages/home.php" class="back-icon">
     <img src="../../assets/images/back.png" alt="Back">
 </a>
 

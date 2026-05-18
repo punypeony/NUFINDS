@@ -20,7 +20,7 @@ $message = $message ?? 'Your report has been submitted successfully.';
   <div class="message-box">
     <h1><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h1>
     <p><?= nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8')) ?></p>
-    <a href="../../pages/home.html">Back to Home</a>
+    <a href="../../pages/home.php">Back to Home</a>
   </div>
 </body>
 </html>
