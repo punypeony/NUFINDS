@@ -65,6 +65,36 @@ body{
   clip-path:polygon(18% 0,100% 0,100% 100%,0 100%);
 }
 
+/* BACK ICON BUTTON */
+.back-icon{
+    position: absolute;
+    top: 65px;   
+    left: 20px;
+    z-index: 1001;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 70px;
+    height: 70px;
+
+    border-radius: 50%;
+    transition: 0.2s ease;
+    background: transparent;
+}
+
+.back-icon img{
+    width: 40px;
+    height: 40px;
+}
+
+.back-icon:hover{
+    transform: scale(.8);
+    background: #1d2a6f;
+}
+
 .main-container {
   width: 82%;
   max-width: 1100px;
