@@ -29,40 +29,242 @@ if ($result) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NU Finds - Verify Matches</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 2rem; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    h1 { margin-bottom: 2rem; color: #073b4c; }
-    .match-card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .match-card.no-match { background: #fff8f8; border-left: 4px solid #ccc; }
-    .match-card.has-match { border-left: 4px solid #4caf50; }
-    .lost-info, .found-info { margin-bottom: 1rem; }
-    .info-row { display: flex; justify-content: space-between; margin: 0.5rem 0; }
-    .label { font-weight: bold; color: #073b4c; min-width: 120px; }
-    .value { color: #333; }
-    .match-icon { color: #4caf50; font-size: 1.5rem; }
-    .no-match-text { color: #999; }
-    .verify-btn, .claim-btn { padding: 0.75rem 1.5rem; background: #1f7a8c; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem; }
-    .verify-btn:hover { background: #155a6d; }
-    .claim-btn { background: #4caf50; }
-    .claim-btn:hover { background: #45a049; }
-    .actions { margin-top: 1rem; }
-    hr { border: none; border-top: 1px solid #eee; margin: 1rem 0; }
-    .popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
-    .popup.hidden { display: none; }
-    .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%,420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-    .popup-content h2 { margin-bottom: 1rem; color: #b00020; }
-    .popup-content p { margin-bottom: 1.25rem; color: #333; }
-    .popup-content button { background: #1f7a8c; color: white; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background: #f5f5f5; overflow-x: hidden; }
+    
+    /* TOPBAR */
+    .topbar {
+        width: 100%;
+        height: 50px;
+        background: #25358c;
+        border-bottom: 4px solid #f2c100;
+        display: flex;
+        align-items: center;
+        padding: 0 25px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    
+    .topbar .logo-header {
+        height: 60px;
+        width: auto;
+        margin-right: 20px;
+    }
+    
+    /* CONTAINER */
+    .container { 
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px 80px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* PAGE TITLE */
+    .page-header {
+        background: #25358c;
+        color: white;
+        padding: 30px;
+        border-radius: 14px;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+    
+    .page-header h1 { 
+        font-size: 42px;
+        color: #f2c100;
+        margin-bottom: 10px;
+    }
+    
+    .page-header p {
+        color: white;
+        font-size: 16px;
+    }
+    
+    /* MATCH CARDS */
+    .match-card { 
+        background: white; 
+        border-radius: 12px; 
+        padding: 2rem; 
+        margin-bottom: 2rem; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-top: 4px solid #25358c;
+    }
+    
+    .match-card.no-match { 
+        border-top: 4px solid #ccc;
+        background: #fafafa;
+    }
+    
+    .match-card.has-match { 
+        border-top: 4px solid #f2c100;
+        background: #fffbf0;
+    }
+    
+    .match-card h2 {
+        color: #25358c;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+    
+    /* INFO SECTIONS */
+    .lost-info, .found-info { 
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-row { 
+        display: flex; 
+        justify-content: space-between; 
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .label { 
+        font-weight: bold; 
+        color: #25358c; 
+        min-width: 150px;
+    }
+    
+    .value { 
+        color: #555;
+        text-align: right;
+        flex: 1;
+    }
+    
+    .match-icon { 
+        color: #f2c100;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .no-match-text { 
+        color: #999;
+        font-style: italic;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    /* BUTTONS */
+    .verify-btn { 
+        padding: 10px 25px; 
+        background: #25358c; 
+        color: #f2c100;
+        border: none; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        margin-right: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .verify-btn:hover { 
+        background: #1a2563;
+        transform: scale(1.05);
+    }
+    
+    .actions { 
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* DIVIDER */
+    hr { 
+        border: none; 
+        border-top: 1px solid #e0e0e0; 
+        margin: 1.5rem 0;
+    }
+    
+    /* NO MATCHES MESSAGE */
+    .no-matches-message {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        color: #666;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    /* POPUP */
+    .popup { 
+        position: fixed; 
+        inset: 0; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        background: rgba(0,0,0,0.5); 
+        z-index: 9999;
+    }
+    
+    .popup.hidden { 
+        display: none;
+    }
+    
+    .popup-content { 
+        background: white; 
+        padding: 2rem; 
+        border-radius: 14px; 
+        width: min(95%, 420px); 
+        text-align: center; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .popup-content h2 { 
+        margin-bottom: 1rem; 
+        color: #25358c;
+        font-size: 24px;
+    }
+    
+    .popup-content p { 
+        margin-bottom: 1.5rem; 
+        color: #555;
+        font-size: 16px;
+    }
+    
+    .popup-content button { 
+        background: #25358c; 
+        color: #f2c100;
+        border: none; 
+        border-radius: 8px; 
+        padding: 10px 25px; 
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .popup-content button:hover {
+        background: #1a2563;
+        transform: scale(1.05);
+    }
 </style>
 </head>
 <body>
 
+<div class="topbar">
+    <img src="../../assets/images/nufindslogo white.png" alt="NU Finds White Logo" class="logo-header">
+</div>
+
 <div class="container">
-    <h1>Verify Found & Lost Matches</h1>
+    <div class="page-header">
+        <h1>Verify Found & Lost Matches</h1>
+        <p>Review and confirm potential matches between lost and found items</p>
+    </div>
 
     <?php if (count($matches) === 0): ?>
-        <p>No pending matches to verify.</p>
+        <div class="no-matches-message">
+            <p>No pending matches to verify at this time.</p>
+        </div>
     <?php else: ?>
         <?php foreach ($matches as $match): ?>
             <div class="match-card <?= $match['FoundID'] ? 'has-match' : 'no-match' ?>">
@@ -148,10 +350,13 @@ if ($result) {
         if (error) {
             showErrorPopup(decodeURIComponent(error));
         }
-        document.getElementById('popup-ok').addEventListener('click', function () {
-            document.getElementById('error-popup').classList.add('hidden');
-            history.replaceState(null, '', window.location.pathname);
-        });
+        const okBtn = document.getElementById('popup-ok');
+        if (okBtn) {
+            okBtn.addEventListener('click', function () {
+                document.getElementById('error-popup').classList.add('hidden');
+                history.replaceState(null, '', window.location.pathname);
+            });
+        }
     });
 </script>
 
