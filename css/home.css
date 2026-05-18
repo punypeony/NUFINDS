@@ -213,6 +213,14 @@ small{
   width:320px;
   padding:20px;
   text-align:center;
+  border-radius:22px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.step-box:hover{
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(94, 106, 221, 0.212);
+  background-color: rgba(124, 143, 201, 0.281);
 }
 
 /* ICON */
@@ -246,10 +254,10 @@ small{
   background:#25358c;
   color:white;
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   flex-wrap:wrap;
-  gap:40px;
-  padding: 20px 20px;
+  gap:24px;
+  padding:12px 20px;
   border-bottom:7px solid #f2c100;
   align-items:flex-start;
 }
@@ -257,16 +265,17 @@ small{
 .footer-left{
   display:flex;
   align-items:center;
-  gap:5px;
+  gap:8px;
   padding-left:0;
   flex:0 0 auto;
-  min-width:240px;
-  margin-top: 25px;
+  margin:0;
 }
 
 .footer-left img{
   height:300px;
-  width: auto;
+  max-height:auto;
+  width:auto;
+  margin-right:150px;
 }
 
 .footer-left h2{
@@ -274,20 +283,24 @@ small{
 }
 
 .footer-middle{
-  flex:0 1 250px;
-  min-width:200px;
-  max-width:280px;
-  margin:0 auto;
-  padding:10px 0;
+  flex:0 0 auto;
+  min-width:220px;
+  max-width:360px;
+  margin:0;
+  padding:5px 1px;
   text-align:left;
   word-wrap:break-word;
   overflow-wrap:break-word;
+  margin-right: 150px;
 }
 
 .footer-middle p{
   white-space:normal;
   word-break:break-word;
-  margin:0;
+  margin:0 auto;
+  font-size:15px;
+  line-height:1.35;
+  max-width:340px;
 }
 
 .site-footer .contact-icon{
@@ -301,9 +314,11 @@ small{
 
 .footer-right{
   flex:0 0 auto;
-  min-width:300px;
-  padding:10px 0;
+  min-width:200px;
+  padding:8 px 8px;
   text-align:left;
+  margin-right: 150px;
+  
 }
 
 .site-footer p{
@@ -315,9 +330,15 @@ small{
   margin:3px 0;
 }
 
+.footer-right h4{
+  margin-top:8px;
+  margin-bottom:10px;
+  line-height:0.2;
+}
 
 .site-footer h4{
   margin-bottom:10px;
+  
 }
 
 /* =========================
