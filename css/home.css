@@ -65,6 +65,7 @@ body{
 .left-content{
   max-width:500px;
   z-index:2;
+  margin-left:60px;
 }
 
 /* TITLE */
@@ -188,9 +189,10 @@ small{
 
 /* ICON */
 .step-icon{
-  font-size:70px;
-  color:#25358c;
-  margin-bottom:25px;
+  width:160px;
+  height:auto;
+  display:block;
+  margin:0 auto 25px;
 }
 
 /* TITLE */
@@ -219,27 +221,42 @@ small{
   
   justify-content:space-between;
   flex-wrap:wrap;
-  padding:10px;
+  padding:30px 60px;
   border-bottom:7px solid #f2c100;
 }
 
 .footer-left{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:5px;
+  padding-left:10px; /* move logo/title inward from the left edge */
 }
 
 .footer-left img{
-  width:55px;
+  width:170px;  
+  height:auto;
+  margin-top:2px; /* move the logo up/down */
 }
 
 .footer-left h2{
-  font-size:30px;
+  font-size:34px;
 }
 
-.footer-middle,
+.footer-middle{
+  max-width:320px;
+  margin:10px 30px; /* move About left/right with second value, up/down with first */
+}
+
+.site-footer .contact-icon{
+  width:16px;
+  height:16px;
+  vertical-align:middle;
+  margin-right:8px;
+}
+
 .footer-right{
   max-width:320px;
+  padding-right:60px; /* move contact block away from the right edge */
 }
 
 .site-footer h4{
