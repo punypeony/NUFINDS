@@ -45,8 +45,7 @@ while ($row = $result->fetch_assoc()) {
 
 <!-- TOPBAR -->
 <div class="topbar">
-    <img src="../../assets/images/nu-logo.png" class="logo-img" alt="NU Logo">
-    <div class="site-title">NU Finds</div>
+    <img src="../../assets/images/nufindslogo white.png" class="logo-header" alt="NU Finds White Logo">
 </div>
 
 <!-- BACK ICON BUTTON -->

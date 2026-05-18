@@ -27,11 +27,10 @@
  
 }
 
-.topbar .logo-img{
-  height:32px;
+.topbar .logo-header{
+  height:60px;
   width:auto;
-  display:block;
-  margin-right:10px;
+  margin-right:20px;
 }
 
 .topbar .site-title{
@@ -203,4 +202,24 @@
 
   background-blend-mode: lighten;
   clip-path:polygon(18% 0,100% 0,100% 100%,0 100%);
+}
+
+/* Header/footer and hero logo helpers */
+.topbar .logo-header{
+  height:48px;
+  width:auto;
+  margin-right:10px;
+}
+
+.site-footer .logo-header,
+.footer-left .logo-header{
+  height:34px;
+  width:auto;
+}
+
+.logo-hero{
+  height:96px;
+  width:auto;
+  display:block;
+  margin-bottom:10px;
 }

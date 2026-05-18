@@ -32,8 +32,6 @@ body{
   display:flex;
   align-items:center;
   padding:0 25px;
-  color:white;
-  font-weight:bold;
   position:sticky;
   top:0;
   z-index:1000;
@@ -42,10 +40,35 @@ body{
 .logo-img{
   height:32px;
   margin-right:10px;
+  margin-top: 20px;
 }
 
 .site-title{
-  font-size:20px;
+  font-size:24px;
+}
+
+/* Header/footer logo sizing */
+.topbar .logo-header{
+  height:60px;
+  width:auto;
+  margin-right:20px;
+}
+
+.site-footer .logo-header,
+.footer-left .logo-header{
+  height:auto;
+  width:220px;
+  margin-top: 2px;
+  margin-left: 200px;
+}
+
+/* Hero logo (blue) sized larger */
+.logo-hero{
+  height:200px;
+  width:auto;
+  display:block;
+  margin-bottom:10px;
+  padding-right: 100px;
 }
 
 /* =========================
@@ -65,12 +88,13 @@ body{
 .left-content{
   max-width:500px;
   z-index:2;
-  margin-left:60px;
+  margin-left:120px;
+  margin-bottom: 100px;
 }
 
 /* TITLE */
 .logo-title h1{
-  font-size:64px;
+  font-size:72px;
   line-height:1;
 }
 
@@ -79,8 +103,9 @@ body{
 
 .logo-title p{
   font-size:26px;
-  margin-top:10px;
   color:#25358c;
+  margin-bottom:20px;
+  margin-left: 30px;
 }
 
 /* =========================
@@ -91,15 +116,16 @@ body{
   flex-direction:column;
   gap:18px;
   margin-top:30px;
+  margin-left:30px;
 }
 
 .btn{
-  width:240px;
-  padding:18px;
-  font-size:26px;
+  width:270px;
+  padding:22px;
+  font-size:28px;
   font-weight:bold;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   cursor:pointer;
   transition:0.2s ease;
 }
@@ -128,8 +154,10 @@ body{
 small{
   display:block;
   margin-top:15px;
+  font-size:19px;
   color:#25358c;
   font-style:italic;
+  margin-left: 30px;
 }
 
 /* =========================
@@ -237,9 +265,8 @@ small{
 }
 
 .footer-left img{
-  width:170px;  
-  height:auto;
-  margin-top:2px;
+  height:300px;
+  width: auto;
 }
 
 .footer-left h2{

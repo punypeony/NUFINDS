@@ -5,6 +5,12 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body{
   overflow-x:hidden;
   background:#f5f5f5;
@@ -67,8 +73,8 @@ body{
 
 /* BACK ICON BUTTON */
 .back-icon{
-    position: absolute;
-    top: 65px;   
+    position: fixed;
+    top: 55px;
     left: 20px;
     z-index: 1001;
     cursor: pointer;
@@ -189,6 +195,26 @@ body{
   font-size: 12px;
   line-height: 1.1;
   font-weight: 500;
+}
+
+/* Header/footer and hero logo helpers */
+.topbar .logo-header{
+  height:60px;
+  width:auto;
+  margin-right:20px;
+}
+
+.site-footer .logo-header,
+.footer-left .logo-header{
+  height:34px;
+  width:auto;
+}
+
+.logo-hero{
+  height:96px;
+  width:auto;
+  display:block;
+  margin-bottom:10px;
 }
 
 .category-btn:hover,
