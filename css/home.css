@@ -218,24 +218,28 @@ small{
   background:#25358c;
   color:white;
   display:flex;
-  
   justify-content:space-between;
   flex-wrap:wrap;
-  padding:30px 60px;
+  gap:40px;
+  padding: 20px 20px;
   border-bottom:7px solid #f2c100;
+  align-items:flex-start;
 }
 
 .footer-left{
   display:flex;
   align-items:center;
   gap:5px;
-  padding-left:10px; /* move logo/title inward from the left edge */
+  padding-left:0;
+  flex:0 0 auto;
+  min-width:240px;
+  margin-top: 25px;
 }
 
 .footer-left img{
   width:170px;  
   height:auto;
-  margin-top:2px; /* move the logo up/down */
+  margin-top:2px;
 }
 
 .footer-left h2{
@@ -243,29 +247,50 @@ small{
 }
 
 .footer-middle{
-  max-width:320px;
-  margin:10px 30px; /* move About left/right with second value, up/down with first */
+  flex:0 1 250px;
+  min-width:200px;
+  max-width:280px;
+  margin:0 auto;
+  padding:10px 0;
+  text-align:left;
+  word-wrap:break-word;
+  overflow-wrap:break-word;
+}
+
+.footer-middle p{
+  white-space:normal;
+  word-break:break-word;
+  margin:0;
 }
 
 .site-footer .contact-icon{
-  width:16px;
-  height:16px;
+  width:24px;
+  height:24px;
   vertical-align:middle;
   margin-right:8px;
+  object-fit:contain;
+  flex-shrink:0;
 }
 
 .footer-right{
-  max-width:320px;
-  padding-right:60px; /* move contact block away from the right edge */
-}
-
-.site-footer h4{
-  margin-bottom:10px;
+  flex:0 0 auto;
+  min-width:300px;
+  padding:10px 0;
+  text-align:left;
 }
 
 .site-footer p{
   font-size:14px;
-  line-height:1.6;
+  line-height:1.5;
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  margin:3px 0;
+}
+
+
+.site-footer h4{
+  margin-bottom:10px;
 }
 
 /* =========================
