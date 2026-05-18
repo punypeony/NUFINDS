@@ -38,11 +38,7 @@ if ($result && $result->num_rows === 1) {
     $_SESSION['CollegeDepartment'] = $row['CollegeDepartment'];
     $_SESSION['StudentEmail'] = $row['StudentEmail'];
 
-<<<<<<< Updated upstream
     echo json_encode(['status' => 'success', 'message' => 'Login successful.']);
-=======
-    header('Location: ../../pages/home.php');
->>>>>>> Stashed changes
     exit;
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Login failed. Please check your credentials.']);
