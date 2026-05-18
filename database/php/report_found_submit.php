@@ -1,9 +1,10 @@
 <?php
 require_once 'db_connect.php';
 session_start();
+header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ReportFound.html');
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
     exit;
 }
 
@@ -14,13 +15,12 @@ $category = trim($_POST['Category'] ?? '');
 $description = trim($_POST['Description'] ?? '');
 
 if ($studentNumber === '') {
-    header('Location: ../../pages/login.html');
+    echo json_encode(['status' => 'error', 'message' => 'Please log in before submitting a report.']);
     exit;
 }
 
 if ($location === '' || $dateFound === '' || $category === '' || $description === '') {
-    $error = urlencode('Please fill in all required fields.');
-    header('Location: ReportFound.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields.']);
     exit;
 }
 
@@ -30,8 +30,7 @@ $checkStmt->execute();
 $result = $checkStmt->get_result();
 
 if (!$result || $result->num_rows !== 1) {
-    $error = urlencode('Student number not found in student records. Please use a registered student number.');
-    header('Location: ReportFound.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Student number not found in student records. Please use a registered student number.']);
     exit;
 }
 
@@ -39,12 +38,9 @@ $insertStmt = $conn->prepare('INSERT INTO found (StudentNumber, Location, DateFo
 $insertStmt->bind_param('sssss', $studentNumber, $location, $dateFound, $category, $description);
 
 if (!$insertStmt->execute()) {
-    $error = urlencode('Unable to save the found item report. Please try again later.');
-    header('Location: ReportFound.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Unable to save the found item report. Please try again later.']);
     exit;
 }
 
-$title = 'Found Report Submitted';
-$message = 'Your found item report has been successfully submitted.';
-include 'report_success.php';
+echo json_encode(['status' => 'success', 'message' => 'Your found item report has been successfully submitted.']);
 exit;

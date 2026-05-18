@@ -1,9 +1,10 @@
 <?php
 require_once 'db_connect.php';
 session_start();
+header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ReportLost.html');
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
     exit;
 }
 
@@ -14,13 +15,12 @@ $category = trim($_POST['Category'] ?? '');
 $description = trim($_POST['Description'] ?? '');
 
 if ($studentNumber === '') {
-    header('Location: ../../pages/login.html');
+    echo json_encode(['status' => 'error', 'message' => 'Please log in before submitting a report.']);
     exit;
 }
 
 if ($location === '' || $dateLost === '' || $category === '' || $description === '') {
-    $error = urlencode('Please fill in all required fields.');
-    header('Location: ReportLost.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields.']);
     exit;
 }
 
@@ -30,8 +30,7 @@ $checkStmt->execute();
 $result = $checkStmt->get_result();
 
 if (!$result || $result->num_rows !== 1) {
-    $error = urlencode('Student number not found in student records. Please use a registered student number.');
-    header('Location: ReportLost.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Student number not found in student records. Please use a registered student number.']);
     exit;
 }
 
@@ -44,12 +43,9 @@ $insertStmt = $conn->prepare('INSERT INTO lost (TicketNumber, StudentNumber, Loc
 $insertStmt->bind_param('ssssss', $ticketNumber, $studentNumber, $location, $dateLost, $category, $description);
 
 if (!$insertStmt->execute()) {
-    $error = urlencode('Unable to save the lost item report. Please try again later.');
-    header('Location: ReportLost.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Unable to save the lost item report. Please try again later.']);
     exit;
 }
 
-$title = 'Lost Report Submitted';
-$message = 'Your lost item report has been successfully submitted.\nTicket Number: ' . $ticketNumber;
-include 'report_success.php';
+echo json_encode(['status' => 'success', 'message' => 'Your lost item report has been successfully submitted. Ticket Number: ' . $ticketNumber]);
 exit;

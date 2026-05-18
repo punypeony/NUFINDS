@@ -1,8 +1,9 @@
 <?php
 require_once 'db_connect.php';
+header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../../pages/login.html');
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
     exit;
 }
 
@@ -11,8 +12,7 @@ $department = trim($_POST['CollegeDepartment'] ?? '');
 $studentName = trim($_POST['StudentName'] ?? '');
 
 if (empty($studentNumber) || empty($department) || empty($studentName)) {
-    $error = urlencode('Please fill in all fields.');
-    header('Location: login.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Please fill in all fields.']);
     exit;
 }
 
@@ -34,11 +34,10 @@ if ($result && $result->num_rows === 1) {
     $_SESSION['StudentEmail'] = $row['StudentEmail'];
     $_SESSION['StudentName'] = htmlspecialchars($studentName, ENT_QUOTES, 'UTF-8');
 
-    header('Location: login_success.php');
+    echo json_encode(['status' => 'success', 'message' => 'Login successful.']);
     exit;
 } else {
-    $error = urlencode('Login failed. Please check your student number and department.');
-    header('Location: ../../pages/login.html?error=' . $error);
+    echo json_encode(['status' => 'error', 'message' => 'Login failed. Please check your student number and department.']);
     exit;
 }
 ?>

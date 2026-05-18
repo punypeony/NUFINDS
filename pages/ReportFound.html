@@ -8,8 +8,11 @@
   <style>
     .popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
     .popup.hidden { display: none; }
-    .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%,420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-    .popup-content h2 { margin-bottom: 1rem; color: #b00020; }
+    .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%,420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-top: 5px solid transparent; }
+    .popup-content.success { border-top-color: #1f7a8c; }
+    .popup-content.error { border-top-color: #b00020; }
+    .popup-content h2 { margin-bottom: 1rem; color: #1f7a8c; }
+    .popup-content.error h2 { color: #b00020; }
     .popup-content p { margin-bottom: 1.25rem; color: #333; }
     .popup-content button { background: #1f7a8c; color: white; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
   </style>
@@ -100,10 +103,31 @@
 
 </div>
 
+  <div id="popup-overlay" class="popup hidden">
+    <div class="popup-content" id="popup-content">
+      <h2 id="popup-title">Message</h2>
+      <p id="popup-message"></p>
+      <button id="popup-ok">OK</button>
+    </div>
+  </div>
+
   <script>
     const buttons = document.querySelectorAll('.category-btn');
     const categoryInput = document.getElementById('found-category');
     const foundForm = document.getElementById('found-form');
+    const popupOverlay = document.getElementById('popup-overlay');
+    const popupOk = document.getElementById('popup-ok');
+
+    function showPopup(type, message) {
+      if (!message) return;
+      const title = document.getElementById('popup-title');
+      const content = document.getElementById('popup-content');
+      title.textContent = type === 'success' ? 'Success' : 'Error';
+      content.classList.toggle('success', type === 'success');
+      content.classList.toggle('error', type !== 'success');
+      document.getElementById('popup-message').textContent = message;
+      popupOverlay.classList.remove('hidden');
+    }
 
     buttons.forEach(button => {
       button.addEventListener('click', () => {
@@ -113,39 +137,44 @@
       });
     });
 
-    foundForm.addEventListener('submit', function (event) {
+    foundForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
       if (!categoryInput.value) {
-        event.preventDefault();
-        alert('Please select a category before submitting.');
+        showPopup('error', 'Please select a category before submitting.');
+        popupOk.onclick = function () {
+          popupOverlay.classList.add('hidden');
+        };
+        return;
       }
-    });
-  </script>
 
-  <div id="error-popup" class="popup hidden">
-    <div class="popup-content">
-      <h2>Error</h2>
-      <p id="popup-message"></p>
-      <button id="popup-ok">OK</button>
-    </div>
-  </div>
+      const formData = new FormData(foundForm);
+      try {
+        const response = await fetch(foundForm.action, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
 
-  <script>
-    function showErrorPopup(message) {
-      if (!message) return;
-      document.getElementById('popup-message').textContent = message;
-      document.getElementById('error-popup').classList.remove('hidden');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const params = new URLSearchParams(window.location.search);
-      const error = params.get('error');
-      if (error) {
-        showErrorPopup(decodeURIComponent(error));
+        if (result.status === 'success') {
+          showPopup('success', result.message || 'Your found item report has been successfully submitted.');
+          popupOk.onclick = function () {
+            popupOverlay.classList.add('hidden');
+            foundForm.reset();
+            buttons.forEach(btn => btn.classList.remove('active'));
+            categoryInput.value = '';
+          };
+        } else {
+          showPopup('error', result.message || 'Unable to submit the report. Please try again.');
+          popupOk.onclick = function () {
+            popupOverlay.classList.add('hidden');
+          };
+        }
+      } catch (error) {
+        showPopup('error', 'Unable to submit the report. Please check your connection and try again.');
+        popupOk.onclick = function () {
+          popupOverlay.classList.add('hidden');
+        };
       }
-      document.getElementById('popup-ok').addEventListener('click', function () {
-        document.getElementById('error-popup').classList.add('hidden');
-        history.replaceState(null, '', window.location.pathname);
-      });
     });
   </script>
 
