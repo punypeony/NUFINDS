@@ -129,7 +129,7 @@ $profileEmail = htmlspecialchars($studentEmail ?: $studentName ?: 'userloggedin@
 
     <div class="footer-right">
         <h4>CONTACT US</h4>
-        <p><img class="contact-icon location-icon" src="../assets/images/location.png" alt="Location icon"> National University Manila</p>
+        <p><img class="contact-icon location-icon" src="../assets/images/locationhome.png" alt="Location icon"> National University Manila</p>
         <p><img class="contact-icon" src="../assets/images/call.png" alt="Phone icon"> 0945-123-6767</p>
         <p><img class="contact-icon" src="../assets/images/email.png" alt="Email icon"> nufindshelpdesk@gmail.com</p>
         <p><img class="contact-icon" src="../assets/images/time.png" alt="Hours icon"> Monday to Friday (8:30AM - 5:30PM)</p>
