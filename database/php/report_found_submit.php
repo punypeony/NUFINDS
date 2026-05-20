@@ -9,10 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $studentNumber = trim($_SESSION['StudentNumber'] ?? '');
-$location = trim($_POST['Location'] ?? '');
-$dateFound = trim($_POST['DateFound'] ?? '');
-$category = trim($_POST['Category'] ?? '');
-$description = trim($_POST['Description'] ?? '');
+$location      = trim($_POST['Location']      ?? '');
+$dateFound     = trim($_POST['DateFound']     ?? '');
+$category      = trim($_POST['Category']      ?? '');
+$description   = trim($_POST['Description']   ?? '');
 
 if ($studentNumber === '') {
     echo json_encode(['status' => 'error', 'message' => 'Please log in before submitting a report.']);
@@ -34,8 +34,26 @@ if (!$result || $result->num_rows !== 1) {
     exit;
 }
 
-$insertStmt = $conn->prepare('INSERT INTO found (StudentNumber, Location, DateFound, Category, Description) VALUES (?, ?, ?, ?, ?)');
-$insertStmt->bind_param('sssss', $studentNumber, $location, $dateFound, $category, $description);
+// ── Image upload ──────────────────────────────────────────────
+$imagePath = null;
+if (isset($_FILES['ItemImage']) && $_FILES['ItemImage']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = __DIR__ . '/../../uploads/found/';
+$imagePath = 'uploads/found/' . $filename;
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    $ext = strtolower(pathinfo($_FILES['ItemImage']['name'], PATHINFO_EXTENSION));
+    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+        $filename = 'found_' . uniqid() . '.' . $ext;
+        if (move_uploaded_file($_FILES['ItemImage']['tmp_name'], $uploadDir . $filename)) {
+            $imagePath = 'uploads/' . $filename;
+        }
+    }
+}
+// ─────────────────────────────────────────────────────────────
+
+$insertStmt = $conn->prepare('INSERT INTO found (StudentNumber, Location, DateFound, Category, Description, Image) VALUES (?, ?, ?, ?, ?, ?)');
+$insertStmt->bind_param('ssssss', $studentNumber, $location, $dateFound, $category, $description, $imagePath);
 
 if (!$insertStmt->execute()) {
     echo json_encode(['status' => 'error', 'message' => 'Unable to save the found item report. Please try again later.']);

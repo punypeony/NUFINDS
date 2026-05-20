@@ -142,9 +142,10 @@ ALTER TABLE lost
   MODIFY LostID int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- Constraints for dumped tables
+-- Images
 --
-
+ALTER TABLE found ADD COLUMN Image VARCHAR(255) DEFAULT NULL;
+ALTER TABLE lost ADD COLUMN Image VARCHAR(255) DEFAULT NULL;
 --
 -- Constraints for table found
 --
@@ -156,6 +157,7 @@ ALTER TABLE found
 --
 ALTER TABLE lost
   ADD CONSTRAINT lost_ibfk_1 FOREIGN KEY (StudentNumber) REFERENCES studentinfo (StudentNumber);
+  
 
 --
 -- Dumping data for table studentinfo

@@ -38,6 +38,17 @@ $todayDate = date('Y-m-d');
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NU Finds - Report Lost Item</title>
   <link rel="stylesheet" href="../css/ReportLost.css">
+  <style>
+    .popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
+    .popup.hidden { display: none; }
+    .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%,420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-top: 5px solid transparent; }
+    .popup-content.success { border-top-color: #f2c100; }
+    .popup-content.error { border-top-color: #b00020; }
+    .popup-content h2 { margin-bottom: 1rem; color: #25358c; }
+    .popup-content.error h2 { color: #b00020; }
+    .popup-content p { margin-bottom: 1.25rem; color: #333; }
+    .popup-content button { background: #25358c; color: #f2c100; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
+  </style>
 </head>
 <body>
 
@@ -59,205 +70,224 @@ $todayDate = date('Y-m-d');
       </div>
     </div>
   </div>
-  
+
   <!-- BACK ICON BUTTON -->
   <a href="home.php" class="back-icon">
     <img src="../assets/images/back.png" alt="Back">
   </a>
 
-<section class="hero">
+  <section class="hero">
 
-<div class="building"></div>
+    <div class="building"></div>
 
-<div class="main-container">
+    <div class="main-container">
 
-    <h2>Report a Lost Item</h2>
+      <h2>Report a Lost Item</h2>
 
-    <form action="../database/php/report_lost_submit.php" method="post" id="lost-form">
-      <div class="input-row">
+      <form action="../database/php/report_lost_submit.php" method="post" id="lost-form" enctype="multipart/form-data">
+        <div class="input-row">
+          <div class="input-box">
+            <img src="../assets/images/location.png" alt="Location Icon">
+            <select name="Location" required>
+              <option value="" disabled selected>Select location</option>
+              <option value="JMB">JMB</option>
+              <option value="ANNEX I">ANNEX I</option>
+              <option value="ANNEX I, SOCIAL HALL">ANNEX I, SOCIAL HALL</option>
+              <option value="ANNEX II">ANNEX II</option>
+              <option value="MB">MB</option>
+              <option value="GARDEN">GARDEN</option>
+              <option value="MB, CANTEEN">MB, CANTEEN</option>
+              <option value="OPEN COURT">OPEN COURT</option>
+              <option value="PARKING">PARKING</option>
+              <option value="CRUCIFIX">CRUCIFIX</option>
+            </select>
+          </div>
 
-        <div class="input-box">
-          <img src="../assets/images/location.png" alt="Location Icon">
-          <select name="Location" required>
-            <option value="" disabled selected>Select location</option>
-            <option value="JMB">JMB</option>
-            <option value="ANNEX I">ANNEX I</option>
-            <option value="ANNEX I, SOCIAL HALL">ANNEX I, SOCIAL HALL</option>
-            <option value="ANNEX II">ANNEX II</option>
-            <option value="MB">MB</option>
-            <option value="GARDEN">GARDEN</option>
-            <option value="MB, CANTEEN">MB, CANTEEN</option>
-            <option value="OPEN COURT">OPEN COURT</option>
-            <option value="PARKING">PARKING</option>
-            <option value="CRUCIFIX">CRUCIFIX</option>
-          </select>
+          <div class="input-box">
+            <img src="../assets/images/date.png" alt="Date Icon">
+            <input type="date" name="DateLost" required max="<?= $todayDate ?>">
+          </div>
         </div>
 
-        <div class="input-box">
-          <img src="../assets/images/date.png" alt="Date Icon">
-          <input type="date" name="DateLost" required max="<?= $todayDate ?>">
+        <div class="section-title">Select a category</div>
+
+        <input type="hidden" name="Category" id="lost-category" required>
+        <div class="category-container">
+          <button type="button" class="category-btn" data-category="Wallet/Credit Card/Money">
+            <img src="../assets/images/wallet.png" alt="Wallet">
+            <span>Wallet/Credit Card/Money</span>
+          </button>
+          <button type="button" class="category-btn" data-category="Identity Document">
+            <img src="../assets/images/id.png" alt="ID">
+            <span>Identity Document</span>
+          </button>
+          <button type="button" class="category-btn" data-category="Bag">
+            <img src="../assets/images/bag.png" alt="Bag">
+            <span>Bag</span>
+          </button>
+          <button type="button" class="category-btn" data-category="Electronics/Gadgets">
+            <img src="../assets/images/electronics.png" alt="Electronics">
+            <span>Electronics/Gadgets</span>
+          </button>
+          <button type="button" class="category-btn" data-category="Accessories">
+            <img src="../assets/images/accessories.png" alt="Accessories">
+            <span>Accessories</span>
+          </button>
+          <button type="button" class="category-btn" data-category="Others">
+            <img src="../assets/images/others.png" alt="Others">
+            <span>Others</span>
+          </button>
         </div>
 
-      </div>
+        <div class="section-title">Describe your item</div>
 
-      <div class="section-title">Select a category</div>
+        <textarea name="Description" placeholder="Describe the object and its distinctive elements as well as possible. Do not indicate first name, last name, surname, address or number." required></textarea>
 
-      <input type="hidden" name="Category" id="lost-category" required>
-      <div class="category-container">
+        <div class="section-title" style="margin-top:28px;">
+          Upload a Photo <span class="optional-label">(optional)</span>
+        </div>
 
-        <button type="button" class="category-btn" data-category="Wallet/Credit Card/Money">
-          <img src="../assets/images/wallet.png" alt="Wallet">
-          <span>Wallet/Credit Card/Money</span>
-        </button>
+        <div class="upload-box" id="upload-box-lost">
+          <input type="file" name="ItemImage" id="item-image-lost" accept="image/*">
+          <label for="item-image-lost" class="upload-label">
+            <svg class="upload-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span id="upload-text-lost">Click to upload image</span>
+          </label>
+          <img id="image-preview-lost" class="image-preview hidden" alt="Preview">
+        </div>
 
-        <button type="button" class="category-btn" data-category="Identity Document">
-          <img src="../assets/images/id.png" alt="ID">
-          <span>Identity Document</span>
-        </button>
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
 
-        <button type="button" class="category-btn" data-category="Bag">
-          <img src="../assets/images/bag.png" alt="Bag">
-          <span>Bag</span>
-        </button>
+    </div>
 
-        <button type="button" class="category-btn" data-category="Electronics/Gadgets">
-          <img src="../assets/images/electronics.png" alt="Electronics">
-          <span>Electronics/Gadgets</span>
-        </button>
-
-        <button type="button" class="category-btn" data-category="Accessories">
-          <img src="../assets/images/accessories.png" alt="Accessories">
-          <span>Accessories</span>
-        </button>
-
-        <button type="button" class="category-btn" data-category="Others">
-          <img src="../assets/images/others.png" alt="Others">
-          <span>Others</span>
-        </button>
-
-      </div>
-
-      <div class="section-title">Describe your item</div>
-
-      <textarea name="Description" placeholder="Describe the object and its distinctive elements as well as possible. Do not indicate first name, last name, surname, address or number." required></textarea>
-
-      <button type="submit" class="submit-btn">
-        Submit
-      </button>
-    </form>
-
-  </div>
-
-</section>
+  </section>
 
 </div>
 
-  <div id="popup-overlay" class="popup hidden">
-    <div class="popup-content" id="popup-content">
-      <h2 id="popup-title">Message</h2>
-      <p id="popup-message"></p>
-      <button id="popup-ok">OK</button>
-    </div>
+<div id="popup-overlay" class="popup hidden">
+  <div class="popup-content" id="popup-content">
+    <h2 id="popup-title">Message</h2>
+    <p id="popup-message"></p>
+    <button id="popup-ok">OK</button>
   </div>
+</div>
 
-  <script>
-    (function () {
-      const profileDropdown = document.getElementById('profileDropdown');
-      const profileToggle = document.getElementById('profileToggle');
+<script>
+  (function () {
+    const profileDropdown = document.getElementById('profileDropdown');
+    const profileToggle   = document.getElementById('profileToggle');
 
-      profileToggle.addEventListener('click', function (event) {
-        event.stopPropagation();
-        profileDropdown.classList.toggle('open');
-      });
-
-      document.addEventListener('click', function () {
-        profileDropdown.classList.remove('open');
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', function () {
-        window.location.href = '../database/php/logout.php';
-      });
-    })();
-
-    const buttons = document.querySelectorAll('.category-btn');
-    const categoryInput = document.getElementById('lost-category');
-    const dateInput = document.querySelector('input[name="DateLost"]');
-    const lostForm = document.getElementById('lost-form');
-    const popupOverlay = document.getElementById('popup-overlay');
-    const popupOk = document.getElementById('popup-ok');
-    const today = new Date().toISOString().split('T')[0];
-
-    if (dateInput) {
-      dateInput.max = today;
-    }
-
-    function showPopup(type, message) {
-      if (!message) return;
-      const title = document.getElementById('popup-title');
-      const content = document.getElementById('popup-content');
-      title.textContent = type === 'success' ? 'Success' : 'Error';
-      content.classList.toggle('success', type === 'success');
-      content.classList.toggle('error', type !== 'success');
-      document.getElementById('popup-message').textContent = message;
-      popupOverlay.classList.remove('hidden');
-    }
-
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        buttons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        categoryInput.value = button.dataset.category;
-      });
+    profileToggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      profileDropdown.classList.toggle('open');
     });
 
-    lostForm.addEventListener('submit', async function (event) {
-      event.preventDefault();
-      if (!categoryInput.value) {
-        showPopup('error', 'Please select a category before submitting.');
-        popupOk.onclick = function () {
-          popupOverlay.classList.add('hidden');
-        };
-        return;
-      }
-
-      if (dateInput && dateInput.value > today) {
-        showPopup('error', 'Please select a date on or before today.');
-        popupOk.onclick = function () {
-          popupOverlay.classList.add('hidden');
-        };
-        return;
-      }
-
-      const formData = new FormData(lostForm);
-      try {
-        const response = await fetch(lostForm.action, {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          showPopup('success', result.message || 'Your lost item report has been successfully submitted.');
-          popupOk.onclick = function () {
-            popupOverlay.classList.add('hidden');
-            lostForm.reset();
-            buttons.forEach(btn => btn.classList.remove('active'));
-            categoryInput.value = '';
-          };
-        } else {
-          showPopup('error', result.message || 'Unable to submit the report. Please try again.');
-          popupOk.onclick = function () {
-            popupOverlay.classList.add('hidden');
-          };
-        }
-      } catch (error) {
-        showPopup('error', 'Unable to submit the report. Please check your connection and try again.');
-        popupOk.onclick = function () {
-          popupOverlay.classList.add('hidden');
-        };
-      }
+    document.addEventListener('click', function () {
+      profileDropdown.classList.remove('open');
     });
-  </script>
+
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      window.location.href = '../database/php/logout.php';
+    });
+  })();
+
+  const buttons       = document.querySelectorAll('.category-btn');
+  const categoryInput = document.getElementById('lost-category');
+  const dateInput     = document.querySelector('input[name="DateLost"]');
+  const lostForm      = document.getElementById('lost-form');
+  const popupOverlay  = document.getElementById('popup-overlay');
+  const popupOk       = document.getElementById('popup-ok');
+  const today         = new Date().toISOString().split('T')[0];
+
+  if (dateInput) dateInput.max = today;
+
+  // Image preview
+  const imageInput = document.getElementById('item-image-lost');
+  const preview    = document.getElementById('image-preview-lost');
+  const uploadText = document.getElementById('upload-text-lost');
+  const uploadBox  = document.getElementById('upload-box-lost');
+
+  imageInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        uploadText.textContent = this.files[0].name;
+        uploadBox.classList.add('has-image');
+        document.body.classList.add('has-preview');
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  function showPopup(type, message) {
+    if (!message) return;
+    const title   = document.getElementById('popup-title');
+    const content = document.getElementById('popup-content');
+    title.textContent = type === 'success' ? 'Success' : 'Error';
+    content.classList.toggle('success', type === 'success');
+    content.classList.toggle('error',   type !== 'success');
+    document.getElementById('popup-message').textContent = message;
+    popupOverlay.classList.remove('hidden');
+  }
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      buttons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      categoryInput.value = button.dataset.category;
+    });
+  });
+
+  lostForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    if (!categoryInput.value) {
+      showPopup('error', 'Please select a category before submitting.');
+      popupOk.onclick = () => popupOverlay.classList.add('hidden');
+      document.body.classList.remove('has-preview');
+      return;
+    }
+
+    if (dateInput && dateInput.value > today) {
+      showPopup('error', 'Please select a date on or before today.');
+      popupOk.onclick = () => popupOverlay.classList.add('hidden');
+      return;
+    }
+
+    const formData = new FormData(lostForm);
+    try {
+      const response = await fetch(lostForm.action, { method: 'POST', body: formData });
+      const result   = await response.json();
+
+      if (result.status === 'success') {
+        showPopup('success', result.message || 'Your lost item report has been successfully submitted.');
+        popupOk.onclick = function () {
+          popupOverlay.classList.add('hidden');
+          lostForm.reset();
+          buttons.forEach(btn => btn.classList.remove('active'));
+          categoryInput.value = '';
+          preview.classList.add('hidden');
+          preview.src = '';
+          uploadText.textContent = 'Click to upload image';
+          uploadBox.classList.remove('has-image');
+        };
+      } else {
+        showPopup('error', result.message || 'Unable to submit the report. Please try again.');
+        popupOk.onclick = () => popupOverlay.classList.add('hidden');
+      }
+    } catch (error) {
+      showPopup('error', 'Unable to submit the report. Please check your connection and try again.');
+      popupOk.onclick = () => popupOverlay.classList.add('hidden');
+    }
+  });
+</script>
 
 </body>
 </html>

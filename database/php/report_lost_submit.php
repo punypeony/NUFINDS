@@ -9,10 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $studentNumber = trim($_SESSION['StudentNumber'] ?? '');
-$location = trim($_POST['Location'] ?? '');
-$dateLost = trim($_POST['DateLost'] ?? '');
-$category = trim($_POST['Category'] ?? '');
-$description = trim($_POST['Description'] ?? '');
+$location      = trim($_POST['Location']      ?? '');
+$dateLost      = trim($_POST['DateLost']      ?? '');
+$category      = trim($_POST['Category']      ?? '');
+$description   = trim($_POST['Description']   ?? '');
 
 if ($studentNumber === '') {
     echo json_encode(['status' => 'error', 'message' => 'Please log in before submitting a report.']);
@@ -35,12 +35,30 @@ if (!$result || $result->num_rows !== 1) {
 }
 
 $ticketResult = $conn->query('SELECT MAX(LostID) AS maxId FROM lost');
-$ticketRow = $ticketResult ? $ticketResult->fetch_assoc() : null;
-$nextId = ($ticketRow['maxId'] ?? 0) + 1;
+$ticketRow    = $ticketResult ? $ticketResult->fetch_assoc() : null;
+$nextId       = ($ticketRow['maxId'] ?? 0) + 1;
 $ticketNumber = 'NU-' . str_pad(1000 + $nextId, 4, '0', STR_PAD_LEFT);
 
-$insertStmt = $conn->prepare('INSERT INTO lost (TicketNumber, StudentNumber, Location, DateLost, Category, Description) VALUES (?, ?, ?, ?, ?, ?)');
-$insertStmt->bind_param('ssssss', $ticketNumber, $studentNumber, $location, $dateLost, $category, $description);
+// ── Image upload ──────────────────────────────────────────────
+$imagePath = null;
+if (isset($_FILES['ItemImage']) && $_FILES['ItemImage']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = __DIR__ . '/../../uploads/lost/';
+$imagePath = 'uploads/lost/' . $filename;
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    $ext = strtolower(pathinfo($_FILES['ItemImage']['name'], PATHINFO_EXTENSION));
+    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+        $filename = 'lost_' . uniqid() . '.' . $ext;
+        if (move_uploaded_file($_FILES['ItemImage']['tmp_name'], $uploadDir . $filename)) {
+            $imagePath = 'uploads/' . $filename;
+        }
+    }
+}
+// ─────────────────────────────────────────────────────────────
+
+$insertStmt = $conn->prepare('INSERT INTO lost (TicketNumber, StudentNumber, Location, DateLost, Category, Description, Image) VALUES (?, ?, ?, ?, ?, ?, ?)');
+$insertStmt->bind_param('sssssss', $ticketNumber, $studentNumber, $location, $dateLost, $category, $description, $imagePath);
 
 if (!$insertStmt->execute()) {
     echo json_encode(['status' => 'error', 'message' => 'Unable to save the lost item report. Please try again later.']);
