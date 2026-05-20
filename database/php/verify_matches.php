@@ -217,12 +217,25 @@ if ($result) {
         width: min(95%, 420px); 
         text-align: center; 
         box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        border-top: 5px solid transparent;
     }
     
+    .popup-content.success {
+        border-top-color: #f2c100;
+    }
+
+    .popup-content.error {
+        border-top-color: #b00020;
+    }
+
     .popup-content h2 { 
         margin-bottom: 1rem; 
         color: #25358c;
         font-size: 24px;
+    }
+
+    .popup-content.error h2 {
+        color: #b00020;
     }
     
     .popup-content p { 
@@ -314,7 +327,7 @@ if ($result) {
                     </div>
 
                     <div class="actions">
-                        <form action="verify_match.php" method="post" style="display: inline;">
+                        <form class="verify-form" action="verify_match.php" method="post" style="display: inline;">
                             <input type="hidden" name="lost_id" value="<?= $match['LostID'] ?>">
                             <input type="hidden" name="found_id" value="<?= $match['FoundID'] ?>">
                             <button type="submit" class="verify-btn">Verify Match</button>
@@ -328,9 +341,9 @@ if ($result) {
         <?php endforeach; ?>
     <?php endif; ?>
 
-    <div id="error-popup" class="popup hidden">
-        <div class="popup-content">
-            <h2>Error</h2>
+    <div id="message-popup" class="popup hidden">
+        <div class="popup-content" id="message-content">
+            <h2 id="popup-title">Message</h2>
             <p id="popup-message"></p>
             <button id="popup-ok">OK</button>
         </div>
@@ -338,25 +351,66 @@ if ($result) {
 </div>
 
 <script>
-    function showErrorPopup(message) {
+    function showPopup(type, message) {
         if (!message) return;
-        document.getElementById('popup-message').textContent = message;
-        document.getElementById('error-popup').classList.remove('hidden');
+        const popup = document.getElementById('message-popup');
+        const content = document.getElementById('message-content');
+        const title = document.getElementById('popup-title');
+        const msg = document.getElementById('popup-message');
+
+        content.classList.remove('success', 'error');
+        content.classList.add(type === 'success' ? 'success' : 'error');
+
+        title.textContent = type === 'success' ? 'Match Verified' : 'Error';
+        msg.textContent = message;
+        popup.classList.remove('hidden');
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
         const error = params.get('error');
         if (error) {
-            showErrorPopup(decodeURIComponent(error));
+            showPopup('error', decodeURIComponent(error));
         }
+
         const okBtn = document.getElementById('popup-ok');
         if (okBtn) {
             okBtn.addEventListener('click', function () {
-                document.getElementById('error-popup').classList.add('hidden');
+                document.getElementById('message-popup').classList.add('hidden');
                 history.replaceState(null, '', window.location.pathname);
             });
         }
+
+        const forms = document.querySelectorAll('.verify-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showPopup('success', result.message || 'Match has been verified successfully.');
+                        const button = form.querySelector('.verify-btn');
+                        if (button) {
+                            button.textContent = 'Verified';
+                            button.disabled = true;
+                            button.style.cursor = 'not-allowed';
+                        }
+                    } else {
+                        showPopup('error', result.message || 'Unable to verify the match.');
+                    }
+                } catch (err) {
+                    showPopup('error', 'Unable to verify the match. Please try again.');
+                }
+            });
+        });
     });
 </script>
 

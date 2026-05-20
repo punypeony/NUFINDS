@@ -1,6 +1,10 @@
 <?php
 require_once 'db_connect.php';
 
+function isAjaxRequest() {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: verify_matches.php');
     exit;
@@ -10,7 +14,13 @@ $lostId = (int)($_POST['lost_id'] ?? 0);
 $foundId = (int)($_POST['found_id'] ?? 0);
 
 if ($lostId === 0 || $foundId === 0) {
-    $error = urlencode('Invalid request.');
+    $message = 'Invalid request.';
+    if (isAjaxRequest()) {
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'error', 'message' => $message]);
+        exit;
+    }
+    $error = urlencode($message);
     header('Location: verify_matches.php?error=' . $error);
     exit;
 }
@@ -47,12 +57,24 @@ try {
 
     $conn->commit();
 
+    if (isAjaxRequest()) {
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'success', 'message' => 'Match verified successfully.']);
+        exit;
+    }
+
     header('Location: verify_success.php?lost_id=' . $lostId . '&found_id=' . $foundId);
     exit;
 
 } catch (Exception $e) {
     $conn->rollback();
-    $error = urlencode('Error verifying match: ' . $e->getMessage());
+    $message = 'Error verifying match: ' . $e->getMessage();
+    if (isAjaxRequest()) {
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'error', 'message' => $message]);
+        exit;
+    }
+    $error = urlencode($message);
     header('Location: verify_matches.php?error=' . $error);
     exit;
 }
