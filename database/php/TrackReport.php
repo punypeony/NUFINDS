@@ -4,6 +4,8 @@ require_once 'db_connect.php';
 
 $studentNumber = $_SESSION['StudentNumber'] ?? null;
 $studentName = $_SESSION['StudentName'] ?? null;
+$studentEmail = $_SESSION['StudentEmail'] ?? '';
+$collegeDepartment = $_SESSION['CollegeDepartment'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $studentNumber = trim($_POST['StudentNumber'] ?? '');
@@ -22,6 +24,24 @@ if (!$studentNumber) {
     include 'track_lookup.php';
     exit;
 }
+
+$stmt = $conn->prepare('SELECT StudentEmail, CollegeDepartment FROM studentinfo WHERE StudentNumber = ?');
+if ($stmt) {
+    $stmt->bind_param('s', $studentNumber);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result && $result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $studentEmail = $row['StudentEmail'] ?: $studentEmail;
+        $collegeDepartment = $row['CollegeDepartment'] ?: $collegeDepartment;
+    }
+    $stmt->close();
+}
+
+$displayEmail = htmlspecialchars($studentEmail ?: $studentName ?: 'Student', ENT_QUOTES, 'UTF-8');
+$displayStudentNumber = htmlspecialchars($studentNumber, ENT_QUOTES, 'UTF-8');
+$displayCollegeDepartment = htmlspecialchars($collegeDepartment ?: 'College Department', ENT_QUOTES, 'UTF-8');
+$profileEmail = htmlspecialchars($studentEmail ?: $studentName ?: 'userloggedin@students.national-u.edu.ph', ENT_QUOTES, 'UTF-8');
 
 $sql = "SELECT TicketNumber, Category, DateLost AS ReportDate, 'Lost' AS ReportType, 'Submitted' AS Status FROM lost WHERE StudentNumber = ? UNION ALL SELECT NULL AS TicketNumber, Category, DateFound AS ReportDate, 'Found' AS ReportType, Status AS Status FROM found WHERE StudentNumber = ? ORDER BY ReportDate DESC";
 $stmt = $conn->prepare($sql);
@@ -46,6 +66,19 @@ while ($row = $result->fetch_assoc()) {
 <!-- TOPBAR -->
 <div class="topbar">
     <img src="../../assets/images/nufindslogo white.png" class="logo-header" alt="NU Finds White Logo">
+    <div class="topbar-user" data-user-email="<?= $profileEmail ?>" data-student-number="<?= $displayStudentNumber ?>" data-college-dept="<?= $displayCollegeDepartment ?>">
+        <div class="user-info">Hi, <span class="user-email"><?= $displayEmail ?></span></div>
+        <div class="profile-menu">
+            <img src="../../assets/images/profileicon.png" alt="Profile icon" class="profile-icon" id="profileToggle">
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">Account</div>
+                <div class="profile-dropdown-item"><span>Student No</span><span class="dropdown-student-number"><?= $displayStudentNumber ?></span></div>
+                <div class="profile-dropdown-item"><span>Email</span><span class="dropdown-email"><?= $profileEmail ?></span></div>
+                <div class="profile-dropdown-item"><span>College Dept</span><span class="dropdown-college-dept"><?= $displayCollegeDepartment ?></span></div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- BACK ICON BUTTON -->
@@ -106,6 +139,31 @@ while ($row = $result->fetch_assoc()) {
     </div>
 
 </section>
+
+<script>
+(function () {
+  const profileDropdown = document.getElementById('profileDropdown');
+  const profileToggle = document.getElementById('profileToggle');
+
+  if (profileToggle && profileDropdown) {
+    profileToggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      profileDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function () {
+      profileDropdown.classList.remove('open');
+    });
+  }
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      window.location.href = 'logout.php';
+    });
+  }
+})();
+</script>
 
 </body>
 </html>

@@ -67,8 +67,8 @@ $profileEmail = htmlspecialchars($studentEmail ?: $studentName ?: 'userloggedin@
             </div>
 
             <div class="hero-buttons">
-                <button class="btn lost" onclick="window.location.href='ReportLost.html'">LOST</button>
-                <button class="btn found" onclick="window.location.href='ReportFound.html'">FOUND</button>
+                <button class="btn lost" onclick="window.location.href='ReportLost.php'">LOST</button>
+                <button class="btn found" onclick="window.location.href='ReportFound.php'">FOUND</button>
                 <button class="btn track" onclick="window.location.href='../database/php/TrackReport.php'">TRACK</button>
             </div>
 
