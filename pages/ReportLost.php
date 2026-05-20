@@ -78,7 +78,19 @@ $todayDate = date('Y-m-d');
 
         <div class="input-box">
           <img src="../assets/images/location.png" alt="Location Icon">
-          <input type="text" name="Location" placeholder="Location" required>
+          <select name="Location" required>
+            <option value="" disabled selected>Select location</option>
+            <option value="JMB">JMB</option>
+            <option value="ANNEX I">ANNEX I</option>
+            <option value="ANNEX I, SOCIAL HALL">ANNEX I, SOCIAL HALL</option>
+            <option value="ANNEX II">ANNEX II</option>
+            <option value="MB">MB</option>
+            <option value="GARDEN">GARDEN</option>
+            <option value="MB, CANTEEN">MB, CANTEEN</option>
+            <option value="OPEN COURT">OPEN COURT</option>
+            <option value="PARKING">PARKING</option>
+            <option value="CRUCIFIX">CRUCIFIX</option>
+          </select>
         </div>
 
         <div class="input-box">
