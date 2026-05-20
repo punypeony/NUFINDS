@@ -398,6 +398,11 @@ small{
   flex-shrink:0;
 }
 
+.site-footer p img.location-icon {
+  width:1px;
+  height:1px;
+}
+
 .footer-right{
   flex:0 0 auto;
   min-width:200px;
