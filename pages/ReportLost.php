@@ -48,6 +48,23 @@ $todayDate = date('Y-m-d');
     .popup-content.error h2 { color: #b00020; }
     .popup-content p { margin-bottom: 1.25rem; color: #333; }
     .popup-content button { background: #25358c; color: #f2c100; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
+    .remove-image-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #b00020;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
@@ -147,7 +164,7 @@ $todayDate = date('Y-m-d');
           Upload a Photo <span class="optional-label">(optional)</span>
         </div>
 
-        <div class="upload-box" id="upload-box-lost">
+        <div class="upload-box" id="upload-box-lost" style="position: relative;">
           <input type="file" name="ItemImage" id="item-image-lost" accept="image/*">
           <label for="item-image-lost" class="upload-label">
             <svg class="upload-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -158,6 +175,7 @@ $todayDate = date('Y-m-d');
             <span id="upload-text-lost">Click to upload image</span>
           </label>
           <img id="image-preview-lost" class="image-preview hidden" alt="Preview">
+          <button type="button" id="remove-image-lost" class="remove-image-btn hidden">&#10005;</button>
         </div>
 
         <button type="submit" class="submit-btn">Submit</button>
@@ -206,11 +224,12 @@ $todayDate = date('Y-m-d');
 
   if (dateInput) dateInput.max = today;
 
-  // Image preview
+  // Image preview & remove
   const imageInput = document.getElementById('item-image-lost');
   const preview    = document.getElementById('image-preview-lost');
   const uploadText = document.getElementById('upload-text-lost');
   const uploadBox  = document.getElementById('upload-box-lost');
+  const removeBtn  = document.getElementById('remove-image-lost');
 
   imageInput.addEventListener('change', function () {
     if (this.files && this.files[0]) {
@@ -218,12 +237,21 @@ $todayDate = date('Y-m-d');
       reader.onload = e => {
         preview.src = e.target.result;
         preview.classList.remove('hidden');
+        removeBtn.classList.remove('hidden');
         uploadText.textContent = this.files[0].name;
         uploadBox.classList.add('has-image');
-        document.body.classList.add('has-preview');
       };
       reader.readAsDataURL(this.files[0]);
     }
+  });
+
+  removeBtn.addEventListener('click', function () {
+    imageInput.value = '';
+    preview.src = '';
+    preview.classList.add('hidden');
+    removeBtn.classList.add('hidden');
+    uploadText.textContent = 'Click to upload image';
+    uploadBox.classList.remove('has-image');
   });
 
   function showPopup(type, message) {
@@ -275,6 +303,7 @@ $todayDate = date('Y-m-d');
           categoryInput.value = '';
           preview.classList.add('hidden');
           preview.src = '';
+          removeBtn.classList.add('hidden');
           uploadText.textContent = 'Click to upload image';
           uploadBox.classList.remove('has-image');
           document.body.classList.remove('has-preview');

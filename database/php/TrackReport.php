@@ -89,14 +89,12 @@ while ($row = $result->fetch_assoc()) {
 <!-- TRACK SECTION -->
 <section class="track-section">
 
+    <div class="building"></div>
+
     <div class="track-box">
 
         <div class="track-title">
             Track Submitted Reports
-        </div>
-
-        <div class="user-summary">
-            Logged in as: <strong><?= htmlspecialchars($studentName ?: $studentNumber, ENT_QUOTES, 'UTF-8') ?></strong>
         </div>
 
         <div class="table-wrapper">
