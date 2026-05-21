@@ -277,6 +277,7 @@ $todayDate = date('Y-m-d');
           preview.src = '';
           uploadText.textContent = 'Click to upload image';
           uploadBox.classList.remove('has-image');
+          document.body.classList.remove('has-preview');
         };
       } else {
         showPopup('error', result.message || 'Unable to submit the report. Please try again.');
