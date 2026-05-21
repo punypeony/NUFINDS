@@ -38,7 +38,6 @@ if (!$result || $result->num_rows !== 1) {
 $imagePath = null;
 if (isset($_FILES['ItemImage']) && $_FILES['ItemImage']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = __DIR__ . '/../../uploads/found/';
-$imagePath = 'uploads/found/' . $filename;
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -46,7 +45,7 @@ $imagePath = 'uploads/found/' . $filename;
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
         $filename = 'found_' . uniqid() . '.' . $ext;
         if (move_uploaded_file($_FILES['ItemImage']['tmp_name'], $uploadDir . $filename)) {
-            $imagePath = 'uploads/' . $filename;
+            $imagePath = 'uploads/found/' . $filename;
         }
     }
 }
