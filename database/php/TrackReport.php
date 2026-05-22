@@ -8,6 +8,27 @@ $studentEmail = $_SESSION['StudentEmail'] ?? '';
 $collegeDepartment = $_SESSION['CollegeDepartment'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['cancel_lost'])) {
+        $lostId = (int)($_POST['lost_id'] ?? 0);
+        $studentNumber = $_SESSION['StudentNumber'] ?? '';
+
+        if ($lostId <= 0 || $studentNumber === '') {
+            header('Location: TrackReport.php?error=' . urlencode('Unable to cancel the lost report.')); 
+            exit;
+        }
+
+        $deleteStmt = $conn->prepare('DELETE FROM lost WHERE LostID = ? AND StudentNumber = ?');
+        $deleteStmt->bind_param('is', $lostId, $studentNumber);
+        $deleteStmt->execute();
+
+        if ($deleteStmt->affected_rows > 0) {
+            header('Location: TrackReport.php?success=' . urlencode('Lost report canceled successfully.'));
+        } else {
+            header('Location: TrackReport.php?error=' . urlencode('No matching lost report found or it has already been removed.'));
+        }
+        exit;
+    }
+
     $studentNumber = trim($_POST['StudentNumber'] ?? '');
     
     $checkStmt = $conn->prepare('SELECT StudentNumber FROM studentinfo WHERE StudentNumber = ?');
@@ -19,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Student number not found. Please enter a valid student number.';
     }
 }
+
+$successMessage = $_GET['success'] ?? '';
+$errorMessage = $_GET['error'] ?? '';
 
 if (!$studentNumber) {
     include 'track_lookup.php';
@@ -43,7 +67,7 @@ $displayStudentNumber = htmlspecialchars($studentNumber, ENT_QUOTES, 'UTF-8');
 $displayCollegeDepartment = htmlspecialchars($collegeDepartment ?: 'College Department', ENT_QUOTES, 'UTF-8');
 $profileEmail = htmlspecialchars($studentEmail ?: $studentName ?: 'userloggedin@students.national-u.edu.ph', ENT_QUOTES, 'UTF-8');
 
-$sql = "SELECT TicketNumber, Category, DateLost AS ReportDate, 'Lost' AS ReportType, 'Submitted' AS Status FROM lost WHERE StudentNumber = ? UNION ALL SELECT NULL AS TicketNumber, Category, DateFound AS ReportDate, 'Found' AS ReportType, Status AS Status FROM found WHERE StudentNumber = ? ORDER BY ReportDate DESC";
+$sql = "SELECT LostID, TicketNumber, Category, DateLost AS ReportDate, 'Lost' AS ReportType, 'Submitted' AS Status FROM lost WHERE StudentNumber = ? UNION ALL SELECT NULL AS LostID, NULL AS TicketNumber, Category, DateFound AS ReportDate, 'Found' AS ReportType, Status AS Status FROM found WHERE StudentNumber = ? ORDER BY ReportDate DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('ss', $studentNumber, $studentNumber);
 $stmt->execute();
@@ -97,6 +121,13 @@ while ($row = $result->fetch_assoc()) {
             Track Submitted Reports
         </div>
 
+        <?php if (!empty($successMessage)): ?>
+            <div class="alert success"><?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8') ?></div>
+        <?php endif; ?>
+        <?php if (!empty($errorMessage)): ?>
+            <div class="alert error"><?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?></div>
+        <?php endif; ?>
+
         <div class="table-wrapper">
 
             <table>
@@ -108,6 +139,7 @@ while ($row = $result->fetch_assoc()) {
                         <th>Category</th>
                         <th>Date</th>
                         <th>Status</th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -123,7 +155,17 @@ while ($row = $result->fetch_assoc()) {
                             <td><?= htmlspecialchars($report['ReportType'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td><?= htmlspecialchars($report['Category'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td><?= date('F j, Y', strtotime($report['ReportDate'])) ?></td>
-                            <td><?= htmlspecialchars($report['Status'], ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="status-cell"><span class="status-text"><?= htmlspecialchars($report['Status'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                                <td class="actions-cell">
+                                    <?php if ($report['ReportType'] === 'Lost'): ?>
+                                        <form method="post" action="TrackReport.php" class="cancel-form" onsubmit="return confirm('Cancel this lost report?');">
+                                            <input type="hidden" name="lost_id" value="<?= (int)$report['LostID'] ?>">
+                                            <button type="submit" name="cancel_lost" class="cancel-btn">Cancel</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span class="found-label">&mdash;</span>
+                                    <?php endif; ?>
+                                </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
