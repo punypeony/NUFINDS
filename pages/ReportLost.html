@@ -43,7 +43,19 @@
 
         <div class="input-box">
           <img src="../assets/images/location.png" alt="Location Icon">
-          <input type="text" name="Location" placeholder="Location" required>
+          <select id="location-select" required aria-label="Location">
+            <option value="" disabled selected>Select location</option>
+              <option value="MB">MB</option>
+              <option value="GARDEN">GARDEN</option>   
+              <option value="OPEN COURT">OPEN COURT</option>      
+              <option value="CRUCIFIX">CRUCIFIX</option>  
+              <option value="JMB">JMB</option>
+              <option value="ANNEX I">ANNEX I</option>
+              <option value="ANNEX II">ANNEX II</option>
+              <option value="PARKING">PARKING</option>
+          </select>
+          <select id="floor-select" style="display:none; margin-top:10px;" aria-label="Floor"></select>
+          <input type="hidden" name="Location" id="Location">
         </div>
 
         <div class="input-box">
@@ -120,6 +132,33 @@
     const popupOverlay = document.getElementById('popup-overlay');
     const popupOk = document.getElementById('popup-ok');
 
+    const locationSelect = document.getElementById('location-select');
+    const floorSelect = document.getElementById('floor-select');
+    const hiddenLocation = document.getElementById('Location');
+
+    const locationFloors = {
+      'JMB': 4,
+      'ANNEX I': 13,
+      'MB': 9
+    };
+
+    locationSelect.addEventListener('change', () => {
+      const selected = locationSelect.value;
+      if (locationFloors[selected]) {
+        floorSelect.innerHTML = '<option value="">Select floor</option>';
+        for (let i = 0; i < locationFloors[selected]; i++) {
+          const opt = document.createElement('option');
+          opt.value = i === 0 ? 'Ground Floor' : `${i === 1 ? '2nd' : i === 2 ? '3rd' : i + 'th'} Floor`;
+          opt.textContent = opt.value;
+          floorSelect.appendChild(opt);
+        }
+        floorSelect.style.display = '';
+      } else {
+        floorSelect.style.display = 'none';
+        floorSelect.innerHTML = '';
+      }
+    });
+
     function showPopup(type, message) {
       if (!message) return;
       const title = document.getElementById('popup-title');
@@ -139,8 +178,19 @@
       });
     });
 
+    function buildLocationValue() {
+      const location = locationSelect.value;
+      if (!location) return '';
+      if (floorSelect.style.display !== 'none') {
+        if (!floorSelect.value) return '';
+        return location + ' - ' + floorSelect.value;
+      }
+      return location;
+    }
+
     lostForm.addEventListener('submit', async function (event) {
       event.preventDefault();
+
       if (!categoryInput.value) {
         showPopup('error', 'Please select a category before submitting.');
         popupOk.onclick = function () {
@@ -148,6 +198,15 @@
         };
         return;
       }
+
+      const locationVal = buildLocationValue();
+      if (!locationVal) {
+        showPopup('error', 'Please select or specify the location before submitting.');
+        popupOk.onclick = function () { popupOverlay.classList.add('hidden'); };
+        return;
+      }
+
+      hiddenLocation.value = locationVal;
 
       const formData = new FormData(lostForm);
       try {
@@ -164,6 +223,7 @@
             lostForm.reset();
             buttons.forEach(btn => btn.classList.remove('active'));
             categoryInput.value = '';
+            floorSelect.style.display = 'none';
           };
         } else {
           showPopup('error', result.message || 'Unable to submit the report. Please try again.');

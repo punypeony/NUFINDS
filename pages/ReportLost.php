@@ -105,19 +105,19 @@ $todayDate = date('Y-m-d');
         <div class="input-row">
           <div class="input-box">
             <img src="../assets/images/location.png" alt="Location Icon">
-            <select name="Location" required>
+            <select id="location-select" required aria-label="Location">
               <option value="" disabled selected>Select location</option>
-              <option value="JMB">JMB</option>
-              <option value="ANNEX I">ANNEX I</option>
-              <option value="ANNEX I, SOCIAL HALL">ANNEX I, SOCIAL HALL</option>
-              <option value="ANNEX II">ANNEX II</option>
-              <option value="MB">MB</option>
-              <option value="GARDEN">GARDEN</option>
-              <option value="MB, CANTEEN">MB, CANTEEN</option>
-              <option value="OPEN COURT">OPEN COURT</option>
-              <option value="PARKING">PARKING</option>
-              <option value="CRUCIFIX">CRUCIFIX</option>
+                <option value="MB">MB</option>
+                <option value="GARDEN">GARDEN</option>   
+                <option value="OPEN COURT">OPEN COURT</option>      
+                <option value="CRUCIFIX">CRUCIFIX</option>  
+                <option value="JMB">JMB</option>
+                <option value="ANNEX I">ANNEX I</option>
+                <option value="ANNEX II">ANNEX II</option>
+                <option value="PARKING">PARKING</option>
             </select>
+            <select id="floor-select" style="display:none; margin-top:10px;" aria-label="Floor"></select>
+            <input type="hidden" name="Location" id="Location">
           </div>
 
           <div class="input-box">
@@ -222,7 +222,34 @@ $todayDate = date('Y-m-d');
   const popupOk       = document.getElementById('popup-ok');
   const today         = new Date().toISOString().split('T')[0];
 
+  const locationSelect = document.getElementById('location-select');
+  const floorSelect = document.getElementById('floor-select');
+  const hiddenLocation = document.getElementById('Location');
+
+  const locationFloors = {
+    'JMB': 4,
+    'ANNEX I': 13,
+    'MB': 9
+  };
+
   if (dateInput) dateInput.max = today;
+
+  locationSelect.addEventListener('change', () => {
+    const selected = locationSelect.value;
+    if (locationFloors[selected]) {
+      floorSelect.innerHTML = '<option value="">Select floor</option>';
+      for (let i = 0; i < locationFloors[selected]; i++) {
+        const option = document.createElement('option');
+        option.value = i === 0 ? 'Ground Floor' : `${i === 1 ? '2nd' : i === 2 ? '3rd' : i + 'th'} Floor`;
+        option.textContent = option.value;
+        floorSelect.appendChild(option);
+      }
+      floorSelect.style.display = '';
+    } else {
+      floorSelect.style.display = 'none';
+      floorSelect.innerHTML = '';
+    }
+  });
 
   // Image preview & remove
   const imageInput = document.getElementById('item-image-lost');
@@ -273,6 +300,16 @@ $todayDate = date('Y-m-d');
     });
   });
 
+  function buildLocationValue() {
+    const location = locationSelect.value;
+    if (!location) return '';
+    if (floorSelect.style.display !== 'none') {
+      if (!floorSelect.value) return '';
+      return location + ' - ' + floorSelect.value;
+    }
+    return location;
+  }
+
   lostForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -288,6 +325,15 @@ $todayDate = date('Y-m-d');
       popupOk.onclick = () => popupOverlay.classList.add('hidden');
       return;
     }
+
+    const locationVal = buildLocationValue();
+    if (!locationVal) {
+      showPopup('error', 'Please select or specify the location before submitting.');
+      popupOk.onclick = () => popupOverlay.classList.add('hidden');
+      return;
+    }
+
+    hiddenLocation.value = locationVal;
 
     const formData = new FormData(lostForm);
     try {

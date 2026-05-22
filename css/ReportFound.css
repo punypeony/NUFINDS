@@ -217,9 +217,8 @@ body {
 
 .input-box img {
   position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 20px;
+  top: 16px;
   width: 24px;
   height: 24px;
 }

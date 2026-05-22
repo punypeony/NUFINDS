@@ -8,7 +8,7 @@ $sql = "
     FROM lost l
     LEFT JOIN found f ON 
         l.Category = f.Category 
-        AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -1 AND 7
+        AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -3 AND 30
         AND f.Status = 'Unclaimed'
     WHERE l.LostID NOT IN (SELECT OriginalReportID FROM history WHERE ReportType = 'Lost')
     ORDER BY l.DateLost DESC
