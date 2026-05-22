@@ -1,3 +1,3 @@
 wohoi  
 nyahahah uto uto ka!!
-ako si yvonne villavicencio at sinusupport ko ang israel
+ako si amrtin santiago at sinusupport ko ang israel at si tatay digs
