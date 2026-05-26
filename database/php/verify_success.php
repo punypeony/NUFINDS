@@ -1,5 +1,5 @@
 <?php
-$lostId = $_GET['lost_id'] ?? null;
+$lostId  = $_GET['lost_id']  ?? null;
 $foundId = $_GET['found_id'] ?? null;
 ?>
 <!DOCTYPE html>
