@@ -49,7 +49,7 @@ class LoginView {
             <div class="message-box">
                 <h1>Welcome, {$safe}!</h1>
                 <p>You have successfully logged in.</p>
-                <a href="../../pages/home.php">Back to Home</a>
+                <a href="home.php">Back to Home</a>
             </div>
         </body>
         </html>

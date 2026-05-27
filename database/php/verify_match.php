@@ -1,5 +1,5 @@
 <?php
-require_once 'MatchVerifier.php';
+require_once __DIR__ . '/lib/MatchVerifier.php';
 
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';

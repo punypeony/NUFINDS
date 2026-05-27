@@ -51,7 +51,7 @@ class ReportView {
             <div class="message-box">
                 <h1>{$safeTitle}</h1>
                 <p>{$safeMessage}</p>
-                <a href="../../pages/home.php">Back to Home</a>
+                <a href="home.php">Back to Home</a>
             </div>
         </body>
         </html>

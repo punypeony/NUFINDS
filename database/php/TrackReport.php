@@ -1,7 +1,7 @@
 <?php
-require_once 'Database.php';
-require_once 'SessionHelper.php';
-require_once 'ReportTracker.php';
+require_once __DIR__ . '/lib/Database.php';
+require_once __DIR__ . '/lib/SessionHelper.php';
+require_once __DIR__ . '/lib/ReportTracker.php';
 
 SessionHelper::start();
 
@@ -25,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_lost'])) {
     exit;
 }
 
-// Not logged in — show lookup form
+// Not logged in — redirect to login
 if ($studentNumber === '') {
-    include 'track_lookup.php';
+    header('Location: login.php');
     exit;
 }
 
@@ -72,7 +72,7 @@ $profileEmail             = htmlspecialchars($studentEmail ?: 'userloggedin@stud
     </div>
 </div>
 
-<a href="../../pages/home.php" class="back-icon">
+<a href="home.php" class="back-icon">
     <img src="../../assets/images/back.png" alt="Back">
 </a>
 

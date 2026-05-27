@@ -105,7 +105,7 @@
             showPopup('success', result.message || 'Login successful. Redirecting...');
             popupOk.onclick = function () {
               popupOverlay.classList.add('hidden');
-              window.location.href = 'home.php'; // FIXED
+              window.location.href = '../database/php/home.php'; // FIXED
             };
           } else {
             showPopup('error', result.message || 'Login failed. Please try again.');

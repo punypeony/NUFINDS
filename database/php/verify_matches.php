@@ -1,5 +1,5 @@
 <?php
-require_once 'MatchVerifier.php';
+require_once __DIR__ . '/lib/MatchVerifier.php';
 
 $verifier      = new MatchVerifier();
 $matches       = $verifier->getPendingMatches();
