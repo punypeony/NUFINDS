@@ -236,22 +236,23 @@ body{
 table{
     width:100%;
     border-collapse:collapse;
-    table-layout:fixed;
+    table-layout: fixed;
 }
 
 th{
     color:#ffd400;
     font-size:23px;
     padding-bottom:25px;
+    white-space:nowrap;
 }
 
 /* COLUMN WIDTHS */
-th:nth-child(1), td:nth-child(1) { width:16%; } /* Ticket Number */
-th:nth-child(2), td:nth-child(2) { width:12%; } /* Type */
-th:nth-child(3), td:nth-child(3) { width:16%; } /* Category */
-th:nth-child(4), td:nth-child(4) { width:18%; } /* Date */
-th:nth-child(5), td:nth-child(5) { width:22%; } /* Status */
-th:nth-child(6), td:nth-child(6) { width:16%; } /* Action */
+th:nth-child(1), td:nth-child(1) { width: 20%; } /* Ticket Number */
+th:nth-child(2), td:nth-child(2) { width: 8%;  } /* Type */
+th:nth-child(3), td:nth-child(3) { width: 24%; } /* Category */
+th:nth-child(4), td:nth-child(4) { width: 18%; } /* Date */
+th:nth-child(5), td:nth-child(5) { width: 16%; } /* Status */
+th:nth-child(6), td:nth-child(6) { width: 14%; } /* Action */
 
 tr{
     height:75px;
@@ -262,6 +263,7 @@ td{
     text-align:center;
     font-size:22px;
     padding:14px 20px;
+    white-space:nowrap;
 }
 
 /* BUTTON */

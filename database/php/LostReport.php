@@ -39,6 +39,24 @@ class LostReport {
             return ['status' => 'error', 'message' => 'Student number not found in student records.'];
         }
 
+        // Self-match check — block if same student has a found report matching this lost report
+        $selfCheck = $this->conn->prepare("
+            SELECT COUNT(*) AS cnt FROM found
+            WHERE StudentNumber = ?
+            AND Category = ?
+            AND DATEDIFF(DateFound, ?) BETWEEN -3 AND 30
+            AND Status = 'Unclaimed'
+        ");
+        $selfCheck->bind_param('sss', $studentNumber, $data['Category'], $data['DateLost']);
+        $selfCheck->execute();
+        $selfRow = $selfCheck->get_result()->fetch_assoc();
+        if ((int)($selfRow['cnt'] ?? 0) > 0) {
+            return [
+                'status'  => 'error',
+                'message' => 'Invalid submission. You already have a found report that matches this lost item. You cannot submit both sides of a match.'
+            ];
+        }
+
         $ticketNumber = $this->generateTicketNumber();
 
         $stmt = $this->conn->prepare(

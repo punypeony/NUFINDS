@@ -54,4 +54,32 @@ class ReportTracker {
 
         return ['status' => 'error', 'message' => 'No matching lost report found or it has already been removed.'];
     }
+
+    public function isSelfMatch(string $studentNumber, string $category, string $date, string $type): bool {
+    if ($type === 'Lost') {
+        // They're submitting a Lost — check if they already have a Found that would match
+        $stmt = $this->conn->prepare("
+            SELECT COUNT(*) as cnt FROM found
+            WHERE StudentNumber = ?
+            AND Category = ?
+            AND DATEDIFF(DateFound, ?) BETWEEN -3 AND 30
+            AND Status = 'Unclaimed'
+        ");
+        $stmt->bind_param('sss', $studentNumber, $category, $date);
+    } else {
+        // They're submitting a Found — check if they already have a Lost that would match
+        $stmt = $this->conn->prepare("
+            SELECT COUNT(*) as cnt FROM lost
+            WHERE StudentNumber = ?
+            AND Category = ?
+            AND DATEDIFF(?, DateLost) BETWEEN -3 AND 30
+        ");
+        $stmt->bind_param('sss', $studentNumber, $category, $date);
+    }
+
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    return (int)($row['cnt'] ?? 0) > 0;
 }
+}
+
