@@ -78,26 +78,35 @@ $profileEmail             = htmlspecialchars($studentEmail      ?: 'userloggedin
     </section>
 
     <!-- HOW IT WORKS -->
-    <section class="home-section">
-        <div class="home-title">HOW <span>NU FINDS</span> WORKS</div>
-        <div class="steps">
-            <div class="step-box">
+<section class="home-section">
+    <div class="home-title">HOW <span>NU FINDS</span> WORKS</div>
+    <div class="steps">
+        <div class="step-box">
+            <div class="step-card-header">
                 <img class="step-icon" src="../assets/images/report.png" alt="Report icon">
                 <h3>Find What Matters</h3>
-                <p>Fill out the report form and provide details such as item description, date, time, and location.</p>
             </div>
-            <div class="step-box">
+            <p class="step-tagline">Report Lost or Found Items</p>
+            <p>Fill out the report form and provide details such as item description, date, time, and location.</p>
+        </div>
+        <div class="step-box">
+            <div class="step-card-header">
                 <img class="step-icon" src="../assets/images/verify.png" alt="Verify icon">
                 <h3>Confirm and Verify</h3>
-                <p>Once a possible match is detected, ownership verification follows.</p>
             </div>
-            <div class="step-box">
+            <p class="step-tagline">Ownership Verification</p>
+            <p>Once a possible match is detected, ownership verification follows.</p>
+        </div>
+        <div class="step-box">
+            <div class="step-card-header">
                 <img class="step-icon" src="../assets/images/retrieve.png" alt="Retrieve icon">
                 <h3>Retrieve With Ease</h3>
-                <p>After successful verification, users may retrieve the item easily.</p>
             </div>
+            <p class="step-tagline">Claim Your Belongings</p>
+            <p>After successful verification, users may retrieve the item easily.</p>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- FOOTER -->
     <footer class="site-footer">

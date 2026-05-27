@@ -19,7 +19,7 @@ class FoundReport {
         return $result && $result->num_rows === 1;
     }
 
-    public function submit(string $studentNumber, array $data, ?string $imagePath): array {
+    public function submit(string $studentNumber, array $data, ?string $imagePath, bool $forceSubmit = false): array {
         if ($studentNumber === '') {
             return ['status' => 'error', 'message' => 'Please log in before submitting a report.'];
         }
@@ -32,21 +32,23 @@ class FoundReport {
             return ['status' => 'error', 'message' => 'Student number not found in student records.'];
         }
 
-        // Self-match check — block if same student has a lost report matching this found report
-        $selfCheck = $this->conn->prepare("
-            SELECT COUNT(*) AS cnt FROM lost
-            WHERE StudentNumber = ?
-            AND Category = ?
-            AND DATEDIFF(?, DateLost) BETWEEN -3 AND 30
-        ");
-        $selfCheck->bind_param('sss', $studentNumber, $data['Category'], $data['DateFound']);
-        $selfCheck->execute();
-        $selfRow = $selfCheck->get_result()->fetch_assoc();
-        if ((int)($selfRow['cnt'] ?? 0) > 0) {
-            return [
-                'status'  => 'error',
-                'message' => 'Invalid submission. You already have a lost report that matches this found item. You cannot submit both sides of a match.'
-            ];
+        // Self-match check — skip if user already confirmed
+        if (!$forceSubmit) {
+            $selfCheck = $this->conn->prepare("
+                SELECT COUNT(*) AS cnt FROM lost
+                WHERE StudentNumber = ?
+                AND Category = ?
+                AND DATEDIFF(?, DateLost) BETWEEN -3 AND 30
+            ");
+            $selfCheck->bind_param('sss', $studentNumber, $data['Category'], $data['DateFound']);
+            $selfCheck->execute();
+            $selfRow = $selfCheck->get_result()->fetch_assoc();
+            if ((int)($selfRow['cnt'] ?? 0) > 0) {
+                return [
+                    'status'  => 'warning',
+                    'message' => 'You already have a lost report with the same category. Are you sure this is a different item?'
+                ];
+            }
         }
 
         $stmt = $this->conn->prepare(
@@ -74,9 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
     SessionHelper::requireLogin();
 
-    $report    = new FoundReport();
-    $imagePath = ImageUploader::upload('ItemImage', 'found');
-    $result    = $report->submit(
+    $report      = new FoundReport();
+    $imagePath   = ImageUploader::upload('ItemImage', 'found');
+    $forceSubmit = !empty($_POST['force_submit']);
+    $result      = $report->submit(
         SessionHelper::get('StudentNumber', ''),
         [
             'Location'    => trim($_POST['Location']    ?? ''),
@@ -84,7 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'Category'    => trim($_POST['Category']    ?? ''),
             'Description' => trim($_POST['Description'] ?? ''),
         ],
-        $imagePath
+        $imagePath,
+        $forceSubmit
     );
 
     echo json_encode($result);

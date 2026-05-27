@@ -41,10 +41,14 @@ $todayDate                = date('Y-m-d');
     .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%,420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-top: 5px solid transparent; }
     .popup-content.success { border-top-color: #f2c100; }
     .popup-content.error   { border-top-color: #b00020; }
+    .popup-content.warning { border-top-color: #f2c100; }
     .popup-content h2 { margin-bottom: 1rem; color: #25358c; }
-    .popup-content.error h2 { color: #b00020; }
+    .popup-content.error h2   { color: #b00020; }
+    .popup-content.warning h2 { color: #e6a800; }
     .popup-content p  { margin-bottom: 1.25rem; color: #333; }
-    .popup-content button { background: #25358c; color: #f2c100; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
+    #popup-buttons { display: flex; justify-content: center; gap: 12px; }
+    #popup-buttons button { background: #25358c; color: #f2c100; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
+    #popup-cancel { background: #ccc !important; color: #333 !important; }
     .remove-image-btn { position: absolute; top: 8px; right: 8px; background: #b00020; color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
   </style>
 </head>
@@ -82,7 +86,6 @@ $todayDate                = date('Y-m-d');
 
       <h2>Report a Lost Item</h2>
 
-      <!-- FIXED action -->
       <form action="../database/php/LostReport.php" method="post" id="lost-form" enctype="multipart/form-data">
         <div class="input-row">
           <div class="input-box">
@@ -149,7 +152,10 @@ $todayDate                = date('Y-m-d');
   <div class="popup-content" id="popup-content">
     <h2 id="popup-title">Message</h2>
     <p id="popup-message"></p>
-    <button id="popup-ok">OK</button>
+    <div id="popup-buttons">
+      <button id="popup-ok">OK</button>
+      <button id="popup-cancel" class="hidden">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -168,6 +174,7 @@ const dateInput      = document.querySelector('input[name="DateLost"]');
 const lostForm       = document.getElementById('lost-form');
 const popupOverlay   = document.getElementById('popup-overlay');
 const popupOk        = document.getElementById('popup-ok');
+const popupCancel    = document.getElementById('popup-cancel');
 const today          = new Date().toISOString().split('T')[0];
 const locationSelect = document.getElementById('location-select');
 const floorSelect    = document.getElementById('floor-select');
@@ -222,14 +229,15 @@ removeBtn.addEventListener('click', function () {
   uploadBox.classList.remove('has-image');
 });
 
-function showPopup(type, message) {
+function showPopup(type, message, showCancel = false) {
   if (!message) return;
   const title   = document.getElementById('popup-title');
   const content = document.getElementById('popup-content');
-  title.textContent = type === 'success' ? 'Success' : 'Error';
-  content.classList.toggle('success', type === 'success');
-  content.classList.toggle('error',   type !== 'success');
+  title.textContent = type === 'success' ? 'Success' : type === 'warning' ? 'Warning' : 'Error';
+  content.classList.remove('success', 'error', 'warning');
+  content.classList.add(type);
   document.getElementById('popup-message').textContent = message;
+  popupCancel.classList.toggle('hidden', !showCancel);
   popupOverlay.classList.remove('hidden');
 }
 
@@ -251,8 +259,27 @@ function buildLocationValue() {
   return location;
 }
 
+function resetForm() {
+  lostForm.reset();
+  buttons.forEach(b => b.classList.remove('active'));
+  categoryInput.value = '';
+  preview.classList.add('hidden');
+  preview.src = '';
+  removeBtn.classList.add('hidden');
+  uploadText.textContent = 'Click to upload image';
+  uploadBox.classList.remove('has-image');
+}
+
+async function submitForm(forceSubmit = false) {
+  const formData = new FormData(lostForm);
+  if (forceSubmit) formData.append('force_submit', '1');
+  const response = await fetch(lostForm.action, { method: 'POST', body: formData });
+  return await response.json();
+}
+
 lostForm.addEventListener('submit', async function (e) {
   e.preventDefault();
+
   if (!categoryInput.value) {
     showPopup('error', 'Please select a category before submitting.');
     popupOk.onclick = () => popupOverlay.classList.add('hidden');
@@ -272,20 +299,35 @@ lostForm.addEventListener('submit', async function (e) {
   hiddenLocation.value = locationVal;
 
   try {
-    const response = await fetch(lostForm.action, { method: 'POST', body: new FormData(lostForm) });
-    const result   = await response.json();
+    const result = await submitForm(false);
+
     if (result.status === 'success') {
       showPopup('success', result.message || 'Your lost item report has been successfully submitted.');
       popupOk.onclick = function () {
         popupOverlay.classList.add('hidden');
-        lostForm.reset();
-        buttons.forEach(b => b.classList.remove('active'));
-        categoryInput.value = '';
-        preview.classList.add('hidden');
-        preview.src = '';
-        removeBtn.classList.add('hidden');
-        uploadText.textContent = 'Click to upload image';
-        uploadBox.classList.remove('has-image');
+        resetForm();
+      };
+    } else if (result.status === 'warning') {
+      showPopup('warning', result.message, true);
+      popupCancel.onclick = () => popupOverlay.classList.add('hidden');
+      popupOk.onclick = async function () {
+        popupOverlay.classList.add('hidden');
+        try {
+          const retryResult = await submitForm(true);
+          if (retryResult.status === 'success') {
+            showPopup('success', retryResult.message || 'Your lost item report has been successfully submitted.');
+            popupOk.onclick = function () {
+              popupOverlay.classList.add('hidden');
+              resetForm();
+            };
+          } else {
+            showPopup('error', retryResult.message || 'Unable to submit. Please try again.');
+            popupOk.onclick = () => popupOverlay.classList.add('hidden');
+          }
+        } catch (err) {
+          showPopup('error', 'Unable to submit. Please check your connection and try again.');
+          popupOk.onclick = () => popupOverlay.classList.add('hidden');
+        }
       };
     } else {
       showPopup('error', result.message || 'Unable to submit the report. Please try again.');
