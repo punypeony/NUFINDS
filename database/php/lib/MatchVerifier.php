@@ -16,6 +16,7 @@ class MatchVerifier {
             FROM lost l
             LEFT JOIN found f ON
                 l.Category = f.Category
+                AND l.StudentNumber <> f.StudentNumber
                 AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -3 AND 30
                 AND f.Status = 'Unclaimed'
             WHERE l.LostID NOT IN (
@@ -43,6 +44,7 @@ class MatchVerifier {
                 SELECT f2.FoundID FROM found f2
                 INNER JOIN lost l ON
                     f2.Category = l.Category
+                    AND f2.StudentNumber <> l.StudentNumber
                     AND DATEDIFF(f2.DateFound, l.DateLost) BETWEEN -3 AND 30
                 WHERE l.LostID NOT IN (
                     SELECT OriginalReportID FROM history WHERE ReportType = 'Lost'
