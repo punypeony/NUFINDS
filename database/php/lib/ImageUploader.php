@@ -20,7 +20,7 @@ class ImageUploader {
 
         $filename = $type . '_' . uniqid() . '.' . $ext;
         if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $uploadDir . $filename)) {
-            return 'uploads/' . $type . '/' . $filename;
+        return '/uploads/' . $type . '/' . $filename;
         }
 
         return null;
