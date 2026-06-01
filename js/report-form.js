@@ -1,5 +1,6 @@
 const reportFormApp = (function () {
-    const locationFloors = { 'JMB': 4, 'ANNEX I': 13, 'MB': 9 };
+    // floor counts include the ground floor
+    const locationFloors = { 'JMB': 4, 'ANNEX I': 12, 'MB': 8 };
 
     function query(id) {
         return document.getElementById(id);
@@ -41,7 +42,7 @@ const reportFormApp = (function () {
     function buildLocationValue(locationSelect, floorSelect) {
         const location = locationSelect.value;
         if (!location) return '';
-        if (floorSelect.style.display !== 'none') {
+        if (!floorSelect.classList.contains('floor-select-hidden')) {
             if (!floorSelect.value) return '';
             return `${location} - ${floorSelect.value}`;
         }
@@ -60,20 +61,38 @@ const reportFormApp = (function () {
         }
     }
 
+    function ordinalSuffix(n) {
+        const j = n % 10,
+              k = n % 100;
+        if (j == 1 && k != 11) return 'st';
+        if (j == 2 && k != 12) return 'nd';
+        if (j == 3 && k != 13) return 'rd';
+        return 'th';
+    }
+
     function createFloors(locationSelect, floorSelect) {
         const selected = locationSelect.value;
-        if (locationFloors[selected]) {
+        const count = locationFloors[selected];
+        if (count) {
             floorSelect.innerHTML = '<option value="">Select floor</option>';
-            for (let i = 0; i < locationFloors[selected]; i++) {
+            for (let i = 0; i < count; i++) {
                 const option = document.createElement('option');
-                option.value = i === 0 ? 'Ground Floor' : `${i === 1 ? '2nd' : i === 2 ? '3rd' : i + 'th'} Floor`;
-                option.textContent = option.value;
+                if (i === 0) {
+                    option.value = 'Ground Floor';
+                    option.textContent = 'Ground Floor';
+                } else {
+                    // Label floors as 2nd, 3rd, ... after Ground Floor
+                    const labelNum = i + 1; // i=1 -> 2, i=2 -> 3, etc.
+                    option.value = `${labelNum}${ordinalSuffix(labelNum)} Floor`;
+                    option.textContent = option.value;
+                }
                 floorSelect.appendChild(option);
             }
-            floorSelect.style.display = '';
+            floorSelect.classList.remove('floor-select-hidden');
         } else {
             floorSelect.innerHTML = '';
-            floorSelect.style.display = 'none';
+            floorSelect.value = '';
+            floorSelect.classList.add('floor-select-hidden');
         }
     }
 
@@ -141,6 +160,7 @@ const reportFormApp = (function () {
             }
             if (locationSelect && floorSelect) {
                 locationSelect.addEventListener('change', () => createFloors(locationSelect, floorSelect));
+                createFloors(locationSelect, floorSelect);
             }
             bindUpload(query('item-image'), preview, uploadText, uploadBox, removeBtn);
 

@@ -99,6 +99,16 @@
 }
 
 .floor-select-hidden {
-  display: none;
+  display: none !important;
+  margin-top: 10px;
+}
+
+.input-box #location-select {
+  display: inline-block;
+  vertical-align: middle;
+}
+.input-box #floor-select {
+  display: inline-block;
+  vertical-align: middle;
   margin-top: 10px;
 }
