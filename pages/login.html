@@ -6,19 +6,7 @@
   <title>NU Finds</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <link rel="stylesheet" href="../css/login.css">
-  <style>
-    .popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
-    .popup.hidden { display: none; }
-    .popup-content { background: white; padding: 1.5rem; border-radius: 14px; width: min(95%, 420px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-top: 5px solid transparent; }
-    .popup-content.success { border-top-color: #f2c100; }
-    .popup-content.error { border-top-color: #b00020; }
-    .popup-content h2 { margin-bottom: 1rem; color: #25358c; }
-    .popup-content.success h2 { color: #25358c; }
-    .popup-content.error h2 { color: #b00020; }
-    .popup-content p { margin-bottom: 1.25rem; color: #333; }
-    .popup-content button { background: #25358c; color: #f2c100; border: none; border-radius: 10px; padding: 0.75rem 1.25rem; cursor: pointer; }
-    .popup-content button:hover { background: #1a2563; }
-  </style>
+  <link rel="stylesheet" href="../css/login-popup.css">
 </head>
 <body>
   <div class="container">
@@ -34,29 +22,41 @@
         </div>
 
         <div class="login-box">
-          <h2>Welcome!</h2>
-          <div class="subtitle">Please enter your details.</div>
+          <h2 id="login-heading">Welcome!</h2>
+          <div class="subtitle" id="login-subtitle">Please enter your details.</div>
 
-          <!-- FIXED action -->
-          <form action="../database/php/Auth.php" method="post" class="login-form">
-            <div class="input-group">
+          <form action="../database/php/auth/Auth.php" method="post" class="login-form"
+                data-student-home-url="student/home.html"
+                data-admin-home-url="admin/home.html"
+                data-check-email-url="../database/php/auth/check_admin_email.php">
+            <input type="hidden" name="LoginType" id="login-type" value="student">
+
+            <div class="input-group" id="department-group">
               <i class="fa-solid fa-graduation-cap"></i>
-              <select id="department-select" name="CollegeDepartment" required>
+              <select id="department-select" name="CollegeDepartment">
                 <option value="" disabled selected>Select College Department</option>
               </select>
             </div>
+
             <div class="input-group">
               <i class="fa-solid fa-envelope"></i>
-              <input type="email" name="StudentEmail" placeholder="Student Email" required>
+              <input type="email" name="StudentEmail" id="login-email" placeholder="Email" required autocomplete="email">
             </div>
-            <div class="input-group">
+
+            <div class="input-group" id="student-number-group">
+              <i class="fa-solid fa-id-card"></i>
+              <input type="text" name="StudentNumber" id="student-number" placeholder="Student Number" autocomplete="username">
+            </div>
+
+            <div class="input-group hidden" id="admin-password-group" hidden>
               <i class="fa-solid fa-lock"></i>
-              <input type="text" name="StudentNumber" placeholder="Student Number" required>
+              <input type="password" name="AdminPassword" id="admin-password" placeholder="Admin Password" autocomplete="off">
             </div>
+
             <button type="submit" class="submit-btn">Submit</button>
           </form>
 
-          <div class="footer-text">For Nationalians use only.</div>
+          <div class="footer-text" id="login-footer">For Nationalians use only.</div>
         </div>
       </div>
 
@@ -70,53 +70,10 @@
     <div class="popup-content" id="popup-content">
       <h2 id="popup-title">Message</h2>
       <p id="popup-message"></p>
-      <button id="popup-ok">OK</button>
+      <button type="button" id="popup-ok">OK</button>
     </div>
   </div>
 
-  <script>
-    function showPopup(type, message) {
-      if (!message) return;
-      const overlay  = document.getElementById('popup-overlay');
-      const title    = document.getElementById('popup-title');
-      const content  = document.getElementById('popup-content');
-      title.textContent = type === 'success' ? 'Success' : 'Error';
-      content.classList.toggle('success', type === 'success');
-      content.classList.toggle('error',   type !== 'success');
-      document.getElementById('popup-message').textContent = message;
-      overlay.classList.remove('hidden');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const loginForm    = document.querySelector('.login-form');
-      const popupOverlay = document.getElementById('popup-overlay');
-      const popupOk      = document.getElementById('popup-ok');
-
-      loginForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
-        try {
-          const response = await fetch(loginForm.action, {
-            method: 'POST',
-            body: new FormData(loginForm),
-          });
-          const result = await response.json();
-
-          if (result.status === 'success') {
-            showPopup('success', result.message || 'Login successful. Redirecting...');
-            popupOk.onclick = function () {
-              popupOverlay.classList.add('hidden');
-              window.location.href = '../database/php/home.php'; // FIXED
-            };
-          } else {
-            showPopup('error', result.message || 'Login failed. Please try again.');
-            popupOk.onclick = () => popupOverlay.classList.add('hidden');
-          }
-        } catch (error) {
-          showPopup('error', 'Unable to submit login. Please try again.');
-          popupOk.onclick = () => popupOverlay.classList.add('hidden');
-        }
-      });
-    });
-  </script>
+  <script src="../js/login-form.js"></script>
 </body>
 </html>

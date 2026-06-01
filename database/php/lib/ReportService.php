@@ -29,6 +29,11 @@ class ReportService {
             return ['status' => 'error', 'message' => 'Student number not found in student records.'];
         }
 
+        $dateError = $this->validateReportDate($data['Date']);
+        if ($dateError !== null) {
+            return ['status' => 'error', 'message' => $dateError];
+        }
+
         if (!$forceSubmit && $this->isSelfMatch($studentNumber, $data['Category'], $data['Date'], $type)) {
             return [
                 'status' => 'warning',
@@ -43,6 +48,26 @@ class ReportService {
         }
 
         return $this->saveLostReport($studentNumber, $data, $imagePath);
+    }
+
+    private function validateReportDate(string $date): ?string {
+        $date = trim($date);
+        if ($date === '') {
+            return 'Please select a valid date.';
+        }
+
+        $today = date('Y-m-d');
+        $min   = date('Y-m-d', strtotime('-1 year'));
+
+        if ($date > $today) {
+            return 'Please select a date on or before today.';
+        }
+
+        if ($date < $min) {
+            return 'Please select a date within the past year.';
+        }
+
+        return null;
     }
 
     private function validateStudent(string $studentNumber): bool {

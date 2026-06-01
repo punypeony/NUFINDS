@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/lib/ReportService.php';
-require_once __DIR__ . '/lib/SessionHelper.php';
-require_once __DIR__ . '/lib/ImageUploader.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
+nufinds_require('lib/ReportService.php');
+nufinds_require('lib/SessionHelper.php');
+nufinds_require('lib/ImageUploader.php');
 
-SessionHelper::requireLogin();
+SessionHelper::requireStudent();
 header('Content-Type: application/json; charset=utf-8');
 
 $reportType = strtolower(trim($_POST['report_type'] ?? ''));
@@ -12,7 +13,7 @@ $itemImage  = ImageUploader::upload('ItemImage', $reportType === 'lost' ? 'lost'
 $service = new ReportService();
 $result  = $service->submit(
     $reportType,
-    SessionHelper::get('StudentNumber', ''),
+    trim((string) SessionHelper::get('StudentNumber', '')),
     [
         'Location'    => trim($_POST['Location']    ?? ''),
         'Date'        => trim($_POST['DateLost']    ?? $_POST['DateFound'] ?? ''),

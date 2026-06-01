@@ -3,8 +3,28 @@ class SessionHelper {
 
     public static function start(): void {
         if (session_status() === PHP_SESSION_NONE) {
+            self::applyCookieParams();
             session_start();
         }
+    }
+
+    private static function applyCookieParams(): void {
+        $script = trim(str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? ''), '/');
+        $path   = '/';
+
+        if ($script !== '') {
+            $segments = explode('/', $script);
+            if ($segments[0] !== '') {
+                $path = '/' . $segments[0] . '/';
+            }
+        }
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => $path,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
     }
 
     public static function set(string $key, mixed $value): void {
@@ -17,13 +37,76 @@ class SessionHelper {
         return $_SESSION[$key] ?? $default;
     }
 
-    public static function isLoggedIn(): bool {
+    public static function isAdmin(): bool {
         self::start();
-        return !empty($_SESSION['StudentNumber']);
+        return ($_SESSION['UserRole'] ?? '') === 'admin';
     }
 
-    public static function requireLogin(string $redirect = '../../pages/login.html'): void {
+    public static function isStudent(): bool {
+        self::start();
+        return ($_SESSION['UserRole'] ?? '') === 'student' && !empty($_SESSION['StudentNumber']);
+    }
+
+    public static function isLoggedIn(): bool {
+        self::start();
+        return self::isStudent() || self::isAdmin();
+    }
+
+    public static function setStudentSession(string $studentNumber, string $department, string $email): void {
+        self::start();
+        $_SESSION['UserRole']           = 'student';
+        $_SESSION['StudentNumber']      = trim($studentNumber);
+        $_SESSION['CollegeDepartment'] = $department;
+        $_SESSION['StudentEmail']       = $email;
+        unset($_SESSION['AdminID'], $_SESSION['AdminUsername'], $_SESSION['AdminName']);
+    }
+
+    public static function setAdminSession(int $adminId, string $username, string $fullName, string $email = ''): void {
+        self::start();
+        $_SESSION['UserRole']      = 'admin';
+        $_SESSION['AdminID']       = $adminId;
+        $_SESSION['AdminUsername'] = $username;
+        $_SESSION['AdminName']     = $fullName;
+        $_SESSION['AdminEmail']    = $email;
+        unset($_SESSION['StudentNumber'], $_SESSION['CollegeDepartment'], $_SESSION['StudentEmail']);
+    }
+
+    public static function requireLogin(?string $redirect = null): void {
+        if (!function_exists('nufinds_pages_url')) {
+            require_once __DIR__ . '/bootstrap.php';
+        }
+
         if (!self::isLoggedIn()) {
+            $redirect ??= nufinds_pages_url('login.html');
+            header("Location: $redirect");
+            exit;
+        }
+    }
+
+    public static function requireStudent(?string $redirect = null): void {
+        if (!function_exists('nufinds_pages_url')) {
+            require_once __DIR__ . '/bootstrap.php';
+        }
+
+        if (self::isAdmin()) {
+            header('Location: ' . nufinds_admin_page('home.html'));
+            exit;
+        }
+
+        if (!self::isStudent()) {
+            $redirect ??= nufinds_pages_url('login.html');
+            header("Location: $redirect");
+            exit;
+        }
+    }
+
+    public static function requireAdmin(?string $redirect = null): void {
+        if (!function_exists('nufinds_pages_url')) {
+            require_once __DIR__ . '/bootstrap.php';
+        }
+
+        if (!self::isAdmin()) {
+            $redirect ??= nufinds_pages_url('login.html');
             header("Location: $redirect");
             exit;
         }

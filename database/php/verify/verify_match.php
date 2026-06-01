@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . '/lib/MatchVerifier.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
+nufinds_require('lib/SessionHelper.php');
+nufinds_require('lib/MatchVerifier.php');
+
+SessionHelper::requireAdmin();
 
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
