@@ -25,6 +25,19 @@ const reportFormApp = (function () {
         if (overlay) overlay.classList.add('hidden');
     }
 
+    function formatDateInputValue(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    function applyReportDateLimits(dateInput) {
+        if (!dateInput) return;
+        const today = new Date();
+        const min = new Date();
+        min.setFullYear(today.getFullYear() - 1);
+        dateInput.max = formatDateInputValue(today);
+        dateInput.min = formatDateInputValue(min);
+    }
+
     function buildLocationValue(locationSelect, floorSelect) {
         const location = locationSelect.value;
         if (!location) return '';
@@ -94,7 +107,11 @@ const reportFormApp = (function () {
     async function submitForm(form, forceSubmit = false) {
         const formData = new FormData(form);
         if (forceSubmit) formData.append('force_submit', '1');
-        const response = await fetch(form.action, { method: 'POST', body: formData });
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+        });
         return response.json();
     }
 
@@ -115,7 +132,7 @@ const reportFormApp = (function () {
             const popupCancel    = query('popup-cancel');
 
             if (!form) return;
-            if (dateInput) dateInput.max = new Date().toISOString().split('T')[0];
+            applyReportDateLimits(dateInput);
             if (locationSelect && floorSelect) {
                 locationSelect.addEventListener('change', () => createFloors(locationSelect, floorSelect));
             }
@@ -143,8 +160,12 @@ const reportFormApp = (function () {
                     showPopup('error', 'Please select a category before submitting.');
                     return;
                 }
-                if (dateInput && dateInput.value > dateInput.max) {
+                if (dateInput && dateInput.max && dateInput.value > dateInput.max) {
                     showPopup('error', 'Please select a date on or before today.');
+                    return;
+                }
+                if (dateInput && dateInput.min && dateInput.value < dateInput.min) {
+                    showPopup('error', 'Please select a date within the past year.');
                     return;
                 }
                 if (locationSelect && floorSelect && hiddenLocation) {

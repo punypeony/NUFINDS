@@ -34,6 +34,9 @@ CREATE TABLE found (
 
 CREATE TABLE history (
   HistoryID int(11) NOT NULL,
+  MatchGroupID varchar(36) DEFAULT NULL,
+  LostID int(11) DEFAULT NULL,
+  FoundID int(11) DEFAULT NULL,
   ReportType enum('Lost','Found') NOT NULL,
   OriginalReportID int(11) NOT NULL,
   TicketNumber varchar(10) DEFAULT NULL,
@@ -73,15 +76,38 @@ CREATE TABLE studentinfo (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
+-- Table structure for table adminaccounts
+-- --------------------------------------------------------
+
+CREATE TABLE adminaccounts (
+  AdminID int(11) NOT NULL,
+  Username varchar(50) NOT NULL,
+  AdminEmail varchar(100) NOT NULL,
+  PasswordHash varchar(255) NOT NULL,
+  FullName varchar(100) NOT NULL,
+  IsActive tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Default admin: email `nufindshelpdesk@gmail.com`, password `admin123`
+INSERT INTO adminaccounts (AdminID, Username, AdminEmail, PasswordHash, FullName, IsActive) VALUES
+(1, 'admin', 'nufindshelpdesk@gmail.com', '$2y$10$2TIFEo46Xc4NL2hUU2pq1ehTvp/FIP47AThTRxdeSfG8Vj.a04Qe6', 'NU Finds Administrator', 1);
+
+-- --------------------------------------------------------
 -- Indexes
 -- --------------------------------------------------------
+
+ALTER TABLE adminaccounts
+  ADD PRIMARY KEY (AdminID),
+  ADD UNIQUE KEY Username (Username),
+  ADD UNIQUE KEY AdminEmail (AdminEmail);
 
 ALTER TABLE found
   ADD PRIMARY KEY (FoundID),
   ADD KEY StudentNumber (StudentNumber);
 
 ALTER TABLE history
-  ADD PRIMARY KEY (HistoryID);
+  ADD PRIMARY KEY (HistoryID),
+  ADD KEY idx_match_group (MatchGroupID);
 
 ALTER TABLE lost
   ADD PRIMARY KEY (LostID),
@@ -104,6 +130,9 @@ ALTER TABLE history
 
 ALTER TABLE lost
   MODIFY LostID int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE adminaccounts
+  MODIFY AdminID int(11) NOT NULL AUTO_INCREMENT;
 
 -- --------------------------------------------------------
 -- Foreign Keys
@@ -143,6 +172,11 @@ INSERT INTO found (FoundID, StudentNumber, Location, DateFound, Category, Descri
 (2, '2024-1003456', 'Engineering Wing', '2026-05-14', 'Electronics/Gadgets', 'Found blue earbuds in white case on desk in hallway', 'Unclaimed', '2026-05-15 10:15:00');
 
 COMMIT;
+
+-- After import, run (separately in phpMyAdmin):
+--   database/history_match_group.sql  (if upgrading an older DB)
+--   database/stored_procedures.sql
+--   database/triggers.sql
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

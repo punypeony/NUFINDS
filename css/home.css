@@ -58,6 +58,14 @@ body{
   position:relative;
 }
 
+.admin-topbar-user {
+  gap: 16px;
+}
+
+.admin-topbar-user .logout-btn {
+  margin-top: 0;
+}
+
 .user-info{
   white-space:nowrap;
 }
@@ -236,6 +244,17 @@ body{
 .track{
   background:#25358c;
   color:#f2c100;
+}
+
+.verify{
+  background:#ffffff;
+  color:#25358c;
+  border:3px solid #25358c;
+}
+
+.verify:hover{
+  background:#f2c100;
+  border-color:#f2c100;
 }
 
 /* NOTE TEXT */

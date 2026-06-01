@@ -1,0 +1,102 @@
+<?php
+require_once __DIR__ . '/../_load.php';
+extract(nufinds_page_entry('home'), EXTR_OVERWRITE);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NU Finds</title>
+    <link rel="stylesheet" href="<?= nufinds_asset('css/home.css') ?>">
+</head>
+<body>
+<div class="container">
+
+    <div class="topbar">
+        <img src="<?= nufinds_asset('assets/images/nufindslogo white.png') ?>" alt="NU Finds White Logo" class="logo-header">
+        <div class="topbar-user"
+             data-user-email="<?= $profileEmail ?>"
+             data-student-number="<?= $displayStudentNumber ?>"
+             data-college-dept="<?= $displayCollegeDepartment ?>">
+            <div class="user-info">Hi, <span class="user-email"><?= $displayEmail ?></span></div>
+            <div class="profile-menu">
+                <img src="<?= nufinds_asset('assets/images/profileicon.png') ?>" alt="Profile icon" class="profile-icon" id="profileToggle">
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown-header">Account</div>
+                    <div class="profile-dropdown-item"><span>Student No</span><span class="dropdown-student-number"><?= $displayStudentNumber ?></span></div>
+                    <div class="profile-dropdown-item"><span>Email</span><span class="dropdown-email"><?= $profileEmail ?></span></div>
+                    <div class="profile-dropdown-item"><span>College Dept</span><span class="dropdown-college-dept"><?= $displayCollegeDepartment ?></span></div>
+                    <button type="button" class="logout-btn" id="logoutBtn" data-logout-url="<?= nufinds_php_url('auth/logout.php') ?>">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="left-content">
+            <div class="logo-title">
+                <img src="<?= nufinds_asset('assets/images/nufindslogo blue.png') ?>" alt="NU Finds Blue Logo" class="logo-hero">
+                <p>What's Lost Finds Its Way</p>
+            </div>
+            <div class="hero-buttons">
+                <button type="button" class="btn lost"  onclick="window.location.href='lost.html'">LOST</button>
+                <button type="button" class="btn found" onclick="window.location.href='found.html'">FOUND</button>
+                <button type="button" class="btn track" onclick="window.location.href='trackreport.html'">TRACK</button>
+            </div>
+            <small>For Nationalians use only.</small>
+        </div>
+        <div class="building"></div>
+    </section>
+
+    <section class="home-section">
+        <div class="home-title">HOW <span>NU FINDS</span> WORKS</div>
+        <div class="steps">
+            <div class="step-box">
+                <div class="step-card-header">
+                    <img class="step-icon" src="<?= nufinds_asset('assets/images/report.png') ?>" alt="Report icon">
+                    <h3>Find What Matters</h3>
+                </div>
+                <p class="step-tagline">Report Lost or Found Items</p>
+                <p>Fill out the report form and provide details such as item description, date, time, and location.</p>
+            </div>
+            <div class="step-box">
+                <div class="step-card-header">
+                    <img class="step-icon" src="<?= nufinds_asset('assets/images/verify.png') ?>" alt="Verify icon">
+                    <h3>Confirm and Verify</h3>
+                </div>
+                <p class="step-tagline">Ownership Verification</p>
+                <p>Once a possible match is detected, ownership verification follows.</p>
+            </div>
+            <div class="step-box">
+                <div class="step-card-header">
+                    <img class="step-icon" src="<?= nufinds_asset('assets/images/retrieve.png') ?>" alt="Retrieve icon">
+                    <h3>Retrieve With Ease</h3>
+                </div>
+                <p class="step-tagline">Claim Your Belongings</p>
+                <p>After successful verification, users may retrieve the item easily.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-left">
+            <img src="<?= nufinds_asset('assets/images/nufindslogo white.png') ?>" alt="NU Finds White Logo" class="logo-header">
+        </div>
+        <div class="footer-middle">
+            <h4>ABOUT NU FINDS</h4>
+            <p>NU Finds is a centralized campus lost-and-found system designed to help students and staff recover belongings efficiently.</p>
+        </div>
+        <div class="footer-right">
+            <h4>CONTACT US</h4>
+            <p><img class="contact-icon location-icon" src="<?= nufinds_asset('assets/images/locationhome.png') ?>" alt="Location icon"> National University Manila</p>
+            <p><img class="contact-icon" src="<?= nufinds_asset('assets/images/call.png') ?>" alt="Phone icon"> 0945-123-6767</p>
+            <p><img class="contact-icon" src="<?= nufinds_asset('assets/images/email.png') ?>" alt="Email icon"> nufindshelpdesk@gmail.com</p>
+            <p><img class="contact-icon" src="<?= nufinds_asset('assets/images/time.png') ?>" alt="Hours icon"> Monday to Friday (8:30AM - 5:30PM)</p>
+        </div>
+    </footer>
+
+</div>
+<script src="<?= nufinds_asset('js/home.js') ?>"></script>
+</body>
+</html>

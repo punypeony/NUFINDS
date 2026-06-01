@@ -82,6 +82,11 @@
   color:#25358c;
 }
 
+.input-group.hidden,
+[hidden].input-group {
+  display: none !important;
+}
+
 /* LOGIN BOX */
 .login-box{
   background:#003a7a;

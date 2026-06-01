@@ -402,6 +402,11 @@ td{
     background:#dcdcdc;
 }
 
+.table-empty-cell {
+    text-align: center;
+    padding: 1.5rem;
+}
+
 @media (max-width: 900px) {
     .track-box{
         width:92%;

@@ -1,0 +1,125 @@
+<?php
+require_once __DIR__ . '/../_load.php';
+extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NU Finds - Report Found Item</title>
+  <link rel="stylesheet" href="<?= nufinds_asset('css/ReportFound.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/report-popup.css') ?>">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="topbar">
+    <img src="<?= nufinds_asset('assets/images/nufindslogo white.png') ?>" alt="NU Finds White Logo" class="logo-header">
+    <div class="topbar-user"
+         data-user-email="<?= $profileEmail ?>"
+         data-student-number="<?= $displayStudentNumber ?>"
+         data-college-dept="<?= $displayCollegeDepartment ?>">
+      <div class="user-info">Hi, <span class="user-email"><?= $displayEmail ?></span></div>
+      <div class="profile-menu">
+        <img src="<?= nufinds_asset('assets/images/profileicon.png') ?>" alt="Profile icon" class="profile-icon" id="profileToggle">
+        <div class="profile-dropdown" id="profileDropdown">
+          <div class="profile-dropdown-header">Account</div>
+          <div class="profile-dropdown-item"><span>Student No</span><span class="dropdown-student-number"><?= $displayStudentNumber ?></span></div>
+          <div class="profile-dropdown-item"><span>Email</span><span class="dropdown-email"><?= $profileEmail ?></span></div>
+          <div class="profile-dropdown-item"><span>College Dept</span><span class="dropdown-college-dept"><?= $displayCollegeDepartment ?></span></div>
+          <button type="button" class="logout-btn" id="logoutBtn" data-logout-url="<?= nufinds_php_url('auth/logout.php') ?>">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="home.html" class="back-icon">
+    <img src="<?= nufinds_asset('assets/images/back.png') ?>" alt="Back">
+  </a>
+
+  <section class="hero">
+    <div class="building"></div>
+    <div class="main-container">
+
+      <h2>Report a Found Item</h2>
+
+      <form action="<?= nufinds_php_url('reports/ReportSubmission.php') ?>" method="post" id="report-form" enctype="multipart/form-data">
+        <input type="hidden" name="report_type" value="found">
+        <div class="input-row">
+          <div class="input-box">
+            <img src="<?= nufinds_asset('assets/images/location.png') ?>" alt="Location Icon">
+            <select id="location-select" required aria-label="Location">
+              <option value="" disabled selected>Select location</option>
+              <option value="MB">MB</option>
+              <option value="GARDEN">GARDEN</option>
+              <option value="OPEN COURT">OPEN COURT</option>
+              <option value="CRUCIFIX">CRUCIFIX</option>
+              <option value="JMB">JMB</option>
+              <option value="ANNEX I">ANNEX I</option>
+              <option value="ANNEX II">ANNEX II</option>
+              <option value="PARKING">PARKING</option>
+            </select>
+            <select id="floor-select" class="floor-select-hidden" aria-label="Floor"></select>
+            <input type="hidden" name="Location" id="Location">
+          </div>
+          <div class="input-box">
+            <img src="<?= nufinds_asset('assets/images/date.png') ?>" alt="Date Icon">
+            <input type="date" name="DateFound" required min="<?= $minReportDate ?>" max="<?= $todayDate ?>">
+          </div>
+        </div>
+
+        <div class="section-title">Select a category</div>
+        <input type="hidden" name="Category" id="Category" required>
+        <div class="category-container">
+          <button type="button" class="category-btn" data-category="Wallet/Credit Card/Money"><img src="<?= nufinds_asset('assets/images/wallet.png') ?>" alt="Wallet"><span>Wallet/Credit Card/Money</span></button>
+          <button type="button" class="category-btn" data-category="Identity Document"><img src="<?= nufinds_asset('assets/images/id.png') ?>" alt="ID"><span>Identity Document</span></button>
+          <button type="button" class="category-btn" data-category="Bag"><img src="<?= nufinds_asset('assets/images/bag.png') ?>" alt="Bag"><span>Bag</span></button>
+          <button type="button" class="category-btn" data-category="Electronics/Gadgets"><img src="<?= nufinds_asset('assets/images/electronics.png') ?>" alt="Electronics"><span>Electronics/Gadgets</span></button>
+          <button type="button" class="category-btn" data-category="Accessories"><img src="<?= nufinds_asset('assets/images/accessories.png') ?>" alt="Accessories"><span>Accessories</span></button>
+          <button type="button" class="category-btn" data-category="Others"><img src="<?= nufinds_asset('assets/images/others.png') ?>" alt="Others"><span>Others</span></button>
+        </div>
+
+        <div class="section-title">Describe your item</div>
+        <textarea name="Description" placeholder="Describe the object and its distinctive elements as well as possible. Do not indicate first name, last name, surname, address or number." required></textarea>
+
+        <div class="section-title upload-section">
+          Upload a Photo <span class="optional-label">(optional)</span>
+        </div>
+        <div class="upload-box upload-box-positioned" id="upload-box">
+          <input type="file" name="ItemImage" id="item-image" accept="image/*">
+          <label for="item-image" class="upload-label">
+            <svg class="upload-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span id="upload-text">Click to upload image</span>
+          </label>
+          <img id="image-preview" class="image-preview hidden" alt="Preview">
+          <button type="button" id="remove-image" class="remove-image-btn hidden">&#10005;</button>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+
+    </div>
+  </section>
+</div>
+
+<div id="popup-overlay" class="popup hidden">
+  <div class="popup-content" id="popup-content">
+    <h2 id="popup-title">Message</h2>
+    <p id="popup-message"></p>
+    <div id="popup-buttons">
+      <button type="button" id="popup-ok">OK</button>
+      <button type="button" id="popup-cancel" class="hidden">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="<?= nufinds_asset('js/report-form.js') ?>"></script>
+<script src="<?= nufinds_asset('js/report-page.js') ?>"></script>
+</body>
+</html>

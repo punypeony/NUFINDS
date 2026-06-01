@@ -1,0 +1,200 @@
+.admin-reports-page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.admin-reports-page .container {
+  min-height: 100vh;
+}
+
+.admin-reports-page .back-icon {
+  position: fixed;
+  top: 55px;
+  left: 20px;
+  z-index: 1001;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  transition: 0.2s ease;
+  background: transparent;
+}
+
+.admin-reports-page .back-icon img {
+  width: 40px;
+  height: 40px;
+}
+
+.admin-reports-page .back-icon:hover {
+  transform: scale(0.8);
+  background: #1d2a6f;
+}
+
+.admin-reports-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 88px 24px 48px;
+}
+
+.admin-reports-header {
+  background: #25358c;
+  color: #fff;
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+
+.admin-reports-header h1 {
+  color: #f2c100;
+  margin-bottom: 8px;
+  font-size: 34px;
+}
+
+.admin-reports-header p {
+  color: #fff;
+}
+
+.dept-section {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border-top: 4px solid #f2c100;
+}
+
+.dept-section-title {
+  background: #eef2ff;
+  color: #25358c;
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dept-count {
+  background: #25358c;
+  color: #f2c100;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.report-table th {
+  background: #fafafa;
+  color: #25358c;
+  font-weight: bold;
+}
+
+.report-table tr:last-child td {
+  border-bottom: none;
+}
+
+.report-table-wrap {
+  overflow-x: auto;
+}
+
+.report-table--edit input,
+.report-table--edit select,
+.report-table--edit textarea {
+  width: 100%;
+  min-width: 90px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.report-table--edit textarea {
+  min-width: 140px;
+  resize: vertical;
+}
+
+.row-actions {
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-save,
+.btn-delete {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-save {
+  background: #25358c;
+  color: #fff;
+}
+
+.btn-delete {
+  background: #c0392b;
+  color: #fff;
+}
+
+.history-edit-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.history-edit-form input,
+.history-edit-form select,
+.history-edit-form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-weight: 400;
+}
+
+.empty-state {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.back-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #25358c;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.back-home-link:hover {
+  text-decoration: underline;
+}

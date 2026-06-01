@@ -1,0 +1,59 @@
+.history-match-card {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #25358c;
+}
+
+.history-match-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #555;
+}
+
+.history-group-id {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.history-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .history-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.history-col h3 {
+  color: #25358c;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.history-col p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.history-desc {
+  margin-top: 10px !important;
+  padding: 10px;
+  background: #f4f6fb;
+  border-radius: 8px;
+  font-size: 13px !important;
+}
+
+.history-missing {
+  color: #888;
+  font-style: italic;
+}
