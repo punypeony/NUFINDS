@@ -106,3 +106,14 @@ function nu_asset(string $path): string
 {
     return nufinds_asset($path);
 }
+
+/** Earliest selectable date on student lost/found report forms. */
+function nufinds_report_date_min(): string
+{
+    return '2022-01-01';
+}
+
+function nufinds_report_date_max(): string
+{
+    return date('Y-m-d');
+}

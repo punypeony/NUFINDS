@@ -57,14 +57,14 @@ class ReportService {
         }
 
         $today = date('Y-m-d');
-        $min   = date('Y-m-d', strtotime('-1 year'));
+        $min   = '2022-01-01';
 
         if ($date > $today) {
             return 'Please select a date on or before today.';
         }
 
         if ($date < $min) {
-            return 'Please select a date within the past year.';
+            return 'Please select a date from January 2022 onward.';
         }
 
         return null;

@@ -8,7 +8,7 @@ nufinds_require('lib/StudentPage.php');
 SessionHelper::requireStudent();
 
 $profile = nufinds_load_student_profile();
-$profile['todayDate']     = date('Y-m-d');
-$profile['minReportDate'] = date('Y-m-d', strtotime('-1 year'));
+$profile['todayDate']     = nufinds_report_date_max();
+$profile['minReportDate'] = nufinds_report_date_min();
 
 return $profile;

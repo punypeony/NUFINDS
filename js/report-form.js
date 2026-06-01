@@ -29,13 +29,13 @@ const reportFormApp = (function () {
         return date.toISOString().split('T')[0];
     }
 
+    const REPORT_DATE_MIN = '2022-01-01';
+
     function applyReportDateLimits(dateInput) {
         if (!dateInput) return;
-        const today = new Date();
-        const min = new Date();
-        min.setFullYear(today.getFullYear() - 1);
-        dateInput.max = formatDateInputValue(today);
-        dateInput.min = formatDateInputValue(min);
+        const today = formatDateInputValue(new Date());
+        dateInput.max = dateInput.max || today;
+        dateInput.min = dateInput.min || REPORT_DATE_MIN;
     }
 
     function buildLocationValue(locationSelect, floorSelect) {
@@ -48,13 +48,16 @@ const reportFormApp = (function () {
         return location;
     }
 
-    function resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox) {
+    function resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox, dateInput) {
         form.reset();
         buttons.forEach(button => button.classList.remove('active'));
         if (preview) preview.classList.add('hidden');
         if (removeBtn) removeBtn.classList.add('hidden');
         if (uploadText) uploadText.textContent = 'Click to upload image';
         if (uploadBox) uploadBox.classList.remove('has-image');
+        if (typeof ReportDatePicker !== 'undefined' && dateInput) {
+            ReportDatePicker.reset(dateInput);
+        }
     }
 
     function createFloors(locationSelect, floorSelect) {
@@ -133,6 +136,9 @@ const reportFormApp = (function () {
 
             if (!form) return;
             applyReportDateLimits(dateInput);
+            if (typeof ReportDatePicker !== 'undefined') {
+                ReportDatePicker.initAll(form);
+            }
             if (locationSelect && floorSelect) {
                 locationSelect.addEventListener('change', () => createFloors(locationSelect, floorSelect));
             }
@@ -165,7 +171,7 @@ const reportFormApp = (function () {
                     return;
                 }
                 if (dateInput && dateInput.min && dateInput.value < dateInput.min) {
-                    showPopup('error', 'Please select a date within the past year.');
+                    showPopup('error', 'Please select a date from January 2022 onward.');
                     return;
                 }
                 if (locationSelect && floorSelect && hiddenLocation) {
@@ -183,7 +189,7 @@ const reportFormApp = (function () {
                         if (popupOk) {
                             popupOk.onclick = () => {
                                 hidePopup();
-                                resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox);
+                                resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox, dateInput);
                             };
                         }
                         return;
@@ -197,7 +203,7 @@ const reportFormApp = (function () {
                                 const retryResult = await submitForm(form, true);
                                 if (retryResult.status === 'success') {
                                     showPopup('success', retryResult.message || 'Your report has been submitted successfully.');
-                                    if (popupOk) popupOk.onclick = () => { hidePopup(); resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox); };
+                                    if (popupOk) popupOk.onclick = () => { hidePopup(); resetForm(form, buttons, preview, removeBtn, uploadText, uploadBox, dateInput); };
                                 } else {
                                     showPopup('error', retryResult.message || 'Unable to submit. Please try again.');
                                 }

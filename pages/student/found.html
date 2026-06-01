@@ -10,6 +10,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
   <title>NU Finds - Report Found Item</title>
   <link rel="stylesheet" href="<?= nufinds_asset('css/ReportFound.css') ?>">
   <link rel="stylesheet" href="<?= nufinds_asset('css/report-popup.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/report-date-picker.css') ?>">
 </head>
 <body>
 
@@ -66,7 +67,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
           </div>
           <div class="input-box">
             <img src="<?= nufinds_asset('assets/images/date.png') ?>" alt="Date Icon">
-            <input type="date" name="DateFound" required min="<?= $minReportDate ?>" max="<?= $todayDate ?>">
+            <input type="date" name="DateFound" class="report-date-input" required min="<?= $minReportDate ?>" max="<?= $todayDate ?>" aria-label="Date found">
           </div>
         </div>
 
@@ -119,6 +120,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
   </div>
 </div>
 
+<script src="<?= nufinds_asset('js/report-date-picker.js') ?>"></script>
 <script src="<?= nufinds_asset('js/report-form.js') ?>"></script>
 <script src="<?= nufinds_asset('js/report-page.js') ?>"></script>
 </body>
