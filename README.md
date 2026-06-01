@@ -6,11 +6,6 @@
 2. Copy the project folder into `htdocs`.
 3. Import `database/nufindsdb.sql` into MySQL.
 4. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
-5. If upgrading an existing database, import in phpMyAdmin (in order):
-   - `database/admin_accounts.sql`
-   - `database/history_match_group.sql`
-   - `database/stored_procedures.sql`
-   - `database/triggers.sql`
 
 ### Admin login (same page as students)
 
