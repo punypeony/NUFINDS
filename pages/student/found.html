@@ -47,7 +47,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
 
       <h2>Report a Found Item</h2>
 
-      <form action="<?= nufinds_php_url('reports/ReportSubmission.php') ?>" method="post" id="report-form" enctype="multipart/form-data">
+      <form action="<?= nufinds_php_url('reports/ReportSubmission.php') ?>" method="post" id="report-form" enctype="multipart/form-data" data-max-upload-bytes="<?= nufinds_report_upload_max_bytes() ?>">
         <input type="hidden" name="report_type" value="found">
         <?= nufinds_csrf_field() ?>
         <div class="input-row">
@@ -88,7 +88,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
         <textarea name="Description" placeholder="Describe the object and its distinctive elements as well as possible. Do not indicate first name, last name, surname, address or number." required></textarea>
 
         <div class="section-title upload-section">
-          Upload a Photo <span class="optional-label">(optional)</span>
+          Upload a Photo <span class="optional-label">(optional, max <?= nufinds_report_upload_max_label() ?>)</span>
         </div>
         <div class="upload-box upload-box-positioned" id="upload-box">
           <input type="file" name="ItemImage" id="item-image" accept="image/*">

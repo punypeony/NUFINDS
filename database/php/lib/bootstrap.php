@@ -118,6 +118,17 @@ function nufinds_report_date_max(): string
     return date('Y-m-d');
 }
 
+/** Max image upload size for lost/found report submissions. */
+function nufinds_report_upload_max_bytes(): int
+{
+    return 25 * 1024 * 1024;
+}
+
+function nufinds_report_upload_max_label(): string
+{
+    return '25 MB';
+}
+
 function nufinds_csrf_token(): string
 {
     nufinds_require('lib/SessionHelper.php');

@@ -96,11 +96,27 @@ const reportFormApp = (function () {
         }
     }
 
-    function bindUpload(input, preview, uploadText, uploadBox, removeBtn) {
+    function clearUpload(input, preview, uploadText, uploadBox, removeBtn) {
+        if (input) input.value = '';
+        if (preview) {
+            preview.classList.add('hidden');
+            preview.src = '';
+        }
+        if (removeBtn) removeBtn.classList.add('hidden');
+        if (uploadText) uploadText.textContent = 'Click to upload image';
+        if (uploadBox) uploadBox.classList.remove('has-image');
+    }
+
+    function bindUpload(input, preview, uploadText, uploadBox, removeBtn, maxUploadBytes) {
         if (!input) return;
 
         input.addEventListener('change', function () {
             if (!this.files || !this.files[0]) return;
+            if (maxUploadBytes && this.files[0].size > maxUploadBytes) {
+                showPopup('error', 'Image must be 25 MB or smaller.');
+                clearUpload(input, preview, uploadText, uploadBox, removeBtn);
+                return;
+            }
             const reader = new FileReader();
             reader.onload = event => {
                 if (preview) {
@@ -116,12 +132,7 @@ const reportFormApp = (function () {
 
         if (removeBtn) {
             removeBtn.addEventListener('click', () => {
-                input.value = '';
-                if (preview) preview.classList.add('hidden');
-                if (preview) preview.src = '';
-                if (removeBtn) removeBtn.classList.add('hidden');
-                if (uploadText) uploadText.textContent = 'Click to upload image';
-                if (uploadBox) uploadBox.classList.remove('has-image');
+                clearUpload(input, preview, uploadText, uploadBox, removeBtn);
             });
         }
     }
@@ -154,6 +165,7 @@ const reportFormApp = (function () {
             const popupCancel    = query('popup-cancel');
 
             if (!form) return;
+            const maxUploadBytes = parseInt(form.dataset.maxUploadBytes || '', 10) || (25 * 1024 * 1024);
             applyReportDateLimits(dateInput);
             if (typeof ReportDatePicker !== 'undefined') {
                 ReportDatePicker.initAll(form);
@@ -162,7 +174,7 @@ const reportFormApp = (function () {
                 locationSelect.addEventListener('change', () => createFloors(locationSelect, floorSelect));
                 createFloors(locationSelect, floorSelect);
             }
-            bindUpload(query('item-image'), preview, uploadText, uploadBox, removeBtn);
+            bindUpload(query('item-image'), preview, uploadText, uploadBox, removeBtn, maxUploadBytes);
 
             buttons.forEach(button => {
                 button.addEventListener('click', () => {
