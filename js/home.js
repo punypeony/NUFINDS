@@ -16,7 +16,7 @@
 
   if (logoutBtn && logoutBtn.dataset.logoutUrl) {
     logoutBtn.addEventListener('click', function () {
-      window.location.href = logoutBtn.dataset.logoutUrl;
+      window.location.replace(logoutBtn.dataset.logoutUrl);
     });
   }
 })();

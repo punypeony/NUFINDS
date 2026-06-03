@@ -85,6 +85,24 @@ function setLoginMode(isAdmin) {
   footer.textContent = 'For Nationalians use only.';
 }
 
+async function redirectIfLoggedIn(form) {
+  const checkUrl = form.dataset.sessionCheckUrl;
+  if (!checkUrl) return;
+
+  try {
+    const response = await fetch(checkUrl, { credentials: 'same-origin', cache: 'no-store' });
+    const data = await response.json();
+    if (!data.logged_in) return;
+
+    const homeUrl = data.role === 'admin'
+      ? (form.dataset.adminHomeUrl || 'admin/home.html')
+      : (form.dataset.studentHomeUrl || 'student/home.html');
+    window.location.replace(homeUrl);
+  } catch (error) {
+    // Ignore network errors; login form stays available.
+  }
+}
+
 async function checkAdminEmail(email, checkUrl) {
   if (!email || !email.includes('@')) {
     setLoginMode(false);
@@ -109,6 +127,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!loginForm) return;
 
   setLoginMode(false);
+  redirectIfLoggedIn(loginForm);
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      redirectIfLoggedIn(loginForm);
+    }
+  });
 
   const studentHomeUrl = loginForm.dataset.studentHomeUrl || 'student/home.html';
   const adminHomeUrl = loginForm.dataset.adminHomeUrl || 'admin/home.html';
@@ -140,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showPopup('success', result.message || 'Login successful. Redirecting...');
         popupOk.onclick = function () {
           popupOverlay.classList.add('hidden');
-          window.location.href = result.role === 'admin' ? adminHomeUrl : studentHomeUrl;
+          window.location.replace(result.role === 'admin' ? adminHomeUrl : studentHomeUrl);
         };
       } else {
         let message = result.message || 'Login failed. Please try again.';

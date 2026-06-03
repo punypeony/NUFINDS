@@ -60,7 +60,8 @@ class Auth {
 
     public function logout(): void {
         SessionHelper::destroy();
-        header('Location: ' . nufinds_pages_url('login.html'));
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Location: ' . nufinds_pages_url('login.html'), true, 303);
         exit;
     }
 }
