@@ -23,7 +23,7 @@
 
         <div class="login-box">
           <h2 id="login-heading">Welcome!</h2>
-          <div class="subtitle" id="login-subtitle">Please enter your details.</div>
+          <div class="subtitle" id="login-subtitle">Enter your email and password.</div>
 
           <form action="../database/php/auth/Auth.php" method="post" class="login-form"
                 data-student-home-url="student/home.html"
@@ -31,21 +31,14 @@
                 data-check-email-url="../database/php/auth/check_admin_email.php">
             <input type="hidden" name="LoginType" id="login-type" value="student">
 
-            <div class="input-group" id="department-group">
-              <i class="fa-solid fa-graduation-cap"></i>
-              <select id="department-select" name="CollegeDepartment">
-                <option value="" disabled selected>Select College Department</option>
-              </select>
-            </div>
-
             <div class="input-group">
               <i class="fa-solid fa-envelope"></i>
               <input type="email" name="StudentEmail" id="login-email" placeholder="Email" required autocomplete="email">
             </div>
 
-            <div class="input-group" id="student-number-group">
-              <i class="fa-solid fa-id-card"></i>
-              <input type="text" name="StudentNumber" id="student-number" placeholder="Student Number" autocomplete="username">
+            <div class="input-group" id="student-password-group">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" name="StudentPassword" id="student-password" placeholder="Password" required autocomplete="current-password">
             </div>
 
             <div class="input-group hidden" id="admin-password-group" hidden>
@@ -56,6 +49,7 @@
             <button type="submit" class="submit-btn">Submit</button>
           </form>
 
+          <p class="auth-link">Don't have an account? <a href="register.html">Register</a></p>
           <div class="footer-text" id="login-footer">For Nationalians use only.</div>
         </div>
       </div>
@@ -63,8 +57,6 @@
       <div class="building"></div>
     </section>
   </div>
-
-  <script src="../js/script.js"></script>
 
   <div id="popup-overlay" class="popup hidden">
     <div class="popup-content" id="popup-content">

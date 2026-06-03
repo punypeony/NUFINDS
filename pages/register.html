@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - NU Finds</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/login.css">
+  <link rel="stylesheet" href="../css/login-popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <img src="../assets/images/nufindslogo white.png" alt="NU Finds White Logo" class="logo-header">
+    </div>
+
+    <section class="hero hero--register">
+      <div class="left-content">
+        <div class="logo-title">
+          <img src="../assets/images/nufindslogo blue.png" alt="NU Finds Blue Logo" class="logo-hero">
+          <p>What's Lost Finds Its Way</p>
+        </div>
+
+        <div class="login-box">
+          <h2>Create Account</h2>
+          <div class="subtitle">Register with your National U details.</div>
+
+          <form action="../database/php/auth/Register.php" method="post" class="register-form"
+                data-home-url="student/home.html">
+            <div class="input-group">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <select id="department-select" name="CollegeDepartment" required>
+                <option value="" disabled selected>Select College Department</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <i class="fa-solid fa-id-card"></i>
+              <input type="text" name="StudentNumber" placeholder="Student Number" required maxlength="20" autocomplete="username">
+            </div>
+
+            <div class="input-group">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" name="StudentEmail" placeholder="Email (@students.national-u.edu.ph)" required autocomplete="email">
+            </div>
+
+            <div class="input-group">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" name="StudentPassword" placeholder="Password" required minlength="6" autocomplete="new-password">
+            </div>
+
+            <div class="input-group">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" name="ConfirmPassword" placeholder="Confirm Password" required minlength="6" autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="submit-btn">Register</button>
+          </form>
+
+          <p class="auth-link">Already have an account? <a href="login.html">Sign in</a></p>
+          <div class="footer-text">For Nationalians use only.</div>
+        </div>
+      </div>
+
+      <div class="building"></div>
+    </section>
+  </div>
+
+  <div id="popup-overlay" class="popup hidden">
+    <div class="popup-content" id="popup-content">
+      <h2 id="popup-title">Message</h2>
+      <p id="popup-message"></p>
+      <button type="button" id="popup-ok">OK</button>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script src="../js/register-form.js"></script>
+</body>
+</html>

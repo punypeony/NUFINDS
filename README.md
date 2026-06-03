@@ -7,9 +7,22 @@
 3. Import `database/nufindsdb.sql` into MySQL.
 4. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
 
+### Student login
+
+Use the main login at `pages/login.html` with **email and password**. College department and student number stay on the registered account and appear in the profile menu after login.
+
+| Field | Example |
+|-------|---------|
+| Email | `juansantos@students.national-u.edu.ph` |
+| Password | `student123` |
+
+New students can register at `pages/register.html` with college department, student number, NU email, and password.
+
+Run `database/student_passwords.sql` in phpMyAdmin if you already imported the database before student passwords were added.
+
 ### Admin login (same page as students)
 
-Use the main login at `pages/login.html`. When you enter the **admin email**, the form switches to **Admin Password** (no department or student number).
+When you enter the **admin email**, the form switches to **Admin Password**.
 
 | Field | Value |
 |-------|--------|
@@ -29,6 +42,7 @@ Run `database/admin_accounts.sql` in phpMyAdmin if you already imported the data
 | File | Purpose |
 |------|---------|
 | `login.html` | Login (students and admin) |
+| `register.html` | Student registration |
 | `student/home.html` | Student dashboard |
 | `student/lost.html` | Report lost item |
 | `student/found.html` | Report found item |

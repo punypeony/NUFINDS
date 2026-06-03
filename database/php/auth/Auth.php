@@ -11,9 +11,10 @@ class Auth {
         $this->conn = Database::connect();
     }
 
-    public function loginStudent(string $studentNumber, string $department, string $email): array {
-        if (empty($studentNumber) || empty($department) || empty($email)) {
-            return ['status' => 'error', 'message' => 'Please fill in all fields.'];
+    public function loginStudent(string $email, string $password): array {
+        $email = strtolower(trim($email));
+        if ($email === '' || $password === '') {
+            return ['status' => 'error', 'message' => 'Please enter your email and password.'];
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -24,32 +25,36 @@ class Auth {
             return ['status' => 'error', 'message' => 'Use your admin password for this email.'];
         }
 
-        $sql = 'SELECT StudentNumber, CollegeDepartment, StudentEmail
+        $sql = 'SELECT StudentNumber, CollegeDepartment, StudentEmail, PasswordHash
                 FROM studentinfo
-                WHERE StudentNumber = ? AND CollegeDepartment = ? AND StudentEmail = ?';
+                WHERE LOWER(StudentEmail) = ?';
 
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return ['status' => 'error', 'message' => 'Query preparation failed.'];
         }
 
-        $stmt->bind_param('sss', $studentNumber, $department, $email);
+        $stmt->bind_param('s', $email);
         $stmt->execute();
         $result = $stmt->get_result();
         $stmt->close();
 
-        if ($result && $result->num_rows === 1) {
-            $row = $result->fetch_assoc();
-            SessionHelper::setStudentSession(
-                $row['StudentNumber'],
-                $row['CollegeDepartment'],
-                $row['StudentEmail']
-            );
-
-            return ['status' => 'success', 'message' => 'Login successful.', 'role' => 'student'];
+        if (!$result || $result->num_rows !== 1) {
+            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.'];
         }
 
-        return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.'];
+        $row = $result->fetch_assoc();
+        if (empty($row['PasswordHash']) || !password_verify($password, $row['PasswordHash'])) {
+            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.'];
+        }
+
+        SessionHelper::setStudentSession(
+            $row['StudentNumber'],
+            $row['CollegeDepartment'],
+            $row['StudentEmail']
+        );
+
+        return ['status' => 'success', 'message' => 'Login successful.', 'role' => 'student'];
     }
 
     public function logout(): void {
@@ -73,11 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $auth   = new Auth();
-    $result = $auth->loginStudent(
-        trim($_POST['StudentNumber'] ?? ''),
-        trim($_POST['CollegeDepartment'] ?? ''),
-        $email
-    );
+    $result = $auth->loginStudent($email, $_POST['StudentPassword'] ?? '');
     echo json_encode($result);
     exit;
 }

@@ -12,10 +12,8 @@ function showPopup(type, message) {
 
 function setLoginMode(isAdmin) {
   const loginType = document.getElementById('login-type');
-  const deptGroup = document.getElementById('department-group');
-  const deptSelect = document.getElementById('department-select');
-  const studentGroup = document.getElementById('student-number-group');
-  const studentInput = document.getElementById('student-number');
+  const studentGroup = document.getElementById('student-password-group');
+  const studentInput = document.getElementById('student-password');
   const adminGroup = document.getElementById('admin-password-group');
   const adminInput = document.getElementById('admin-password');
   const heading = document.getElementById('login-heading');
@@ -27,12 +25,10 @@ function setLoginMode(isAdmin) {
   loginType.value = isAdmin ? 'admin' : 'student';
 
   if (isAdmin) {
-    deptGroup.classList.add('hidden');
-    deptGroup.setAttribute('hidden', '');
-    deptSelect.removeAttribute('required');
     studentGroup.classList.add('hidden');
     studentGroup.setAttribute('hidden', '');
     studentInput.removeAttribute('required');
+    studentInput.value = '';
     adminGroup.classList.remove('hidden');
     adminGroup.removeAttribute('hidden');
     adminInput.setAttribute('required', 'required');
@@ -42,9 +38,6 @@ function setLoginMode(isAdmin) {
     return;
   }
 
-  deptGroup.classList.remove('hidden');
-  deptGroup.removeAttribute('hidden');
-  deptSelect.setAttribute('required', 'required');
   studentGroup.classList.remove('hidden');
   studentGroup.removeAttribute('hidden');
   studentInput.setAttribute('required', 'required');
@@ -53,7 +46,7 @@ function setLoginMode(isAdmin) {
   adminInput.removeAttribute('required');
   adminInput.value = '';
   heading.textContent = 'Welcome!';
-  subtitle.textContent = 'Please enter your details.';
+  subtitle.textContent = 'Enter your email and password.';
   footer.textContent = 'For Nationalians use only.';
 }
 

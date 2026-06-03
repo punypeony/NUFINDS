@@ -196,6 +196,37 @@
   font-style:italic;
 }
 
+.auth-link{
+  text-align:center;
+  margin-top:18px;
+  font-size:14px;
+}
+
+.auth-link a{
+  color:#ffd400;
+  font-weight:bold;
+  text-decoration:underline;
+}
+
+.auth-link a:hover{
+  color:#fff;
+}
+
+.hero--register{
+  align-items:flex-start;
+  padding-top:24px;
+  overflow-y:auto;
+}
+
+.hero--register .login-box{
+  max-height:calc(100vh - 120px);
+  overflow-y:auto;
+}
+
+.hero--register .login-box h2{
+  font-size:42px;
+}
+
 /* BUILDING IMAGE */
 .building{
   position:absolute;

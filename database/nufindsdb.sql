@@ -72,7 +72,8 @@ CREATE TABLE lost (
 CREATE TABLE studentinfo (
   StudentNumber varchar(20) NOT NULL,
   CollegeDepartment enum('COLLEGE OF ALLIED HEALTH','COLLEGE OF ARCHITECTURE','COLLEGE OF BUSINESS AND ACCOUNTANCY','COLLEGE OF COMPUTING AND INFORMATION TECHNOLOGIES','COLLEGE OF EDUCATION ARTS AND SCIENCES','COLLEGE OF ENGINEERING','COLLEGE OF TOURISM AND HOSPITALITY MANAGEMENT') NOT NULL,
-  StudentEmail varchar(50) NOT NULL
+  StudentEmail varchar(50) NOT NULL,
+  PasswordHash varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -148,12 +149,13 @@ ALTER TABLE lost
 -- Sample Data - studentinfo
 -- --------------------------------------------------------
 
-INSERT INTO studentinfo (StudentNumber, CollegeDepartment, StudentEmail) VALUES
-('2024-1001234', 'COLLEGE OF COMPUTING AND INFORMATION TECHNOLOGIES', 'juansantos@students.national-u.edu.ph'),
-('2024-1005678', 'COLLEGE OF BUSINESS AND ACCOUNTANCY', 'mariacruz@students.national-u.edu.ph'),
-('2024-1009012', 'COLLEGE OF ENGINEERING', 'saramarcos@students.national-u.edu.ph'),
-('2024-1003456', 'COLLEGE OF ARCHITECTURE', 'rodrigodelarosa@students.national-u.edu.ph'),
-('2024-1007890', 'COLLEGE OF EDUCATION ARTS AND SCIENCES', 'briantan@students.national-u.edu.ph');
+-- Default student password for sample accounts: `student123`
+INSERT INTO studentinfo (StudentNumber, CollegeDepartment, StudentEmail, PasswordHash) VALUES
+('2024-1001234', 'COLLEGE OF COMPUTING AND INFORMATION TECHNOLOGIES', 'juansantos@students.national-u.edu.ph', '$2y$10$ZfzfxnKoxX1vf8Gl1PDRhuUTYWCkY5LQ8y54cV8YO/3EZwkgcPLl6'),
+('2024-1005678', 'COLLEGE OF BUSINESS AND ACCOUNTANCY', 'mariacruz@students.national-u.edu.ph', '$2y$10$ZfzfxnKoxX1vf8Gl1PDRhuUTYWCkY5LQ8y54cV8YO/3EZwkgcPLl6'),
+('2024-1009012', 'COLLEGE OF ENGINEERING', 'saramarcos@students.national-u.edu.ph', '$2y$10$ZfzfxnKoxX1vf8Gl1PDRhuUTYWCkY5LQ8y54cV8YO/3EZwkgcPLl6'),
+('2024-1003456', 'COLLEGE OF ARCHITECTURE', 'rodrigodelarosa@students.national-u.edu.ph', '$2y$10$ZfzfxnKoxX1vf8Gl1PDRhuUTYWCkY5LQ8y54cV8YO/3EZwkgcPLl6'),
+('2024-1007890', 'COLLEGE OF EDUCATION ARTS AND SCIENCES', 'briantan@students.national-u.edu.ph', '$2y$10$ZfzfxnKoxX1vf8Gl1PDRhuUTYWCkY5LQ8y54cV8YO/3EZwkgcPLl6');
 
 -- --------------------------------------------------------
 -- Sample Data - lost
