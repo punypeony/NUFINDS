@@ -27,7 +27,7 @@ When you enter the **admin email**, the form switches to **Admin Password**.
 | Field | Value |
 |-------|--------|
 | Admin email | `nufindshelpdesk@gmail.com` |
-| Password | `admin123` |
+| Password | `secret` |
 
 **Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable). Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
 
