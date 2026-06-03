@@ -1,4 +1,8 @@
 -- Run this in phpMyAdmin on database `nufindsdb` (new installs or upgrade).
+--
+-- ⚠️  DEPLOYMENT: Default admin password is `admin123` (development only).
+--     Change the admin password immediately after importing on any live server.
+--     Do NOT leave admin123 in production — this file is in a public repository.
 
 CREATE TABLE IF NOT EXISTS adminaccounts (
   AdminID int(11) NOT NULL AUTO_INCREMENT,

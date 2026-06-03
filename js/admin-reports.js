@@ -2,11 +2,12 @@
   const body = document.body;
   const apiUrl = body.dataset.reportsApi;
   const reportType = body.dataset.reportType;
+  const csrfToken = body.dataset.csrfToken || '';
 
   if (!apiUrl || !reportType) return;
 
   function rowData(row) {
-    const data = { id: row.dataset.id };
+    const data = { id: row.dataset.id, csrf_token: csrfToken };
     row.querySelectorAll('input[name], select[name], textarea[name]').forEach((el) => {
       data[el.name] = el.value;
     });
@@ -16,9 +17,12 @@
   async function post(action, data) {
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+      },
       credentials: 'same-origin',
-      body: JSON.stringify({ action, ...data }),
+      body: JSON.stringify({ action, csrf_token: csrfToken, ...data }),
     });
     return response.json();
   }

@@ -127,6 +127,8 @@ class Register {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
 
+    SessionHelper::requireValidCsrf();
+
     $register = new Register();
     $result   = $register->register(
         trim($_POST['StudentNumber'] ?? ''),

@@ -408,16 +408,63 @@ td{
 }
 
 @media (max-width: 900px) {
+    .track-section{
+        padding:60px 12px 32px;
+    }
+
     .track-box{
-        width:92%;
-        padding:30px 20px;
+        width:100%;
+        max-width:100%;
+        padding:32px 16px;
     }
 
     .track-title{
-        font-size:34px;
+        font-size:32px;
+        margin-bottom:28px;
     }
 
-    .track-section{
-        padding:40px 20px;
+    .building{
+        display:none;
+    }
+
+    .table-wrapper{
+        padding:16px 8px;
+        max-height:none;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    table{
+        table-layout:auto;
+        min-width:640px;
+    }
+
+    th{
+        font-size:16px;
+        padding-bottom:12px;
+    }
+
+    td{
+        font-size:14px;
+        padding:10px 8px;
+    }
+
+    tr{
+        height:auto;
+    }
+
+    .cancel-btn{
+        font-size:13px;
+        padding:8px 14px;
+    }
+}
+
+@media (max-width: 520px) {
+    .track-title{
+        font-size:26px;
+    }
+
+    .track-box{
+        padding:24px 12px;
     }
 }

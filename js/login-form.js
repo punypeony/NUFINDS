@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!loginForm) return;
 
   setLoginMode(false);
+  initFormCsrf(loginForm);
   redirectIfLoggedIn(loginForm);
   window.addEventListener('pageshow', function (event) {
     if (event.persisted) {

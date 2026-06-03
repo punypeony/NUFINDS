@@ -1,5 +1,9 @@
 -- Run this in phpMyAdmin on database `nufindsdb` if you already imported the database earlier.
 -- Adds student password login and sets default password `student123` for all registered students.
+--
+-- ⚠️  DEPLOYMENT: Default password `student123` is for local development only.
+--     Before going live: change all student passwords or require registration-only access.
+--     Do NOT use student123 on a production server — this file is in a public repository.
 
 ALTER TABLE studentinfo
   ADD COLUMN PasswordHash varchar(255) NOT NULL DEFAULT '' AFTER StudentEmail;

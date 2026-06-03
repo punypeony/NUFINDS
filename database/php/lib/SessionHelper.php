@@ -19,10 +19,14 @@ class SessionHelper {
             }
         }
 
+        $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['SERVER_PORT'] ?? '') === '443');
+
         session_set_cookie_params([
             'lifetime' => 0,
             'path'     => $path,
             'httponly' => true,
+            'secure'   => $isSecure,
             'samesite' => 'Lax',
         ]);
     }
@@ -35,6 +39,41 @@ class SessionHelper {
     public static function get(string $key, mixed $default = null): mixed {
         self::start();
         return $_SESSION[$key] ?? $default;
+    }
+
+    public static function generateCsrfToken(): string {
+        self::start();
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    public static function verifyCsrfToken(string $token): bool {
+        self::start();
+        return hash_equals($_SESSION['csrf_token'] ?? '', $token);
+    }
+
+    public static function requireValidCsrf(?array $jsonPayload = null): void {
+        self::start();
+
+        $token = trim($_POST['csrf_token'] ?? '');
+        if ($token === '' && $jsonPayload !== null) {
+            $token = trim($jsonPayload['csrf_token'] ?? '');
+        }
+        if ($token === '' && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+            $token = trim($_SERVER['HTTP_X_CSRF_TOKEN']);
+        }
+
+        if (!self::verifyCsrfToken($token)) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(403);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid or missing security token. Please refresh the page.',
+            ]);
+            exit;
+        }
     }
 
     public static function isAdmin(): bool {
@@ -54,6 +93,7 @@ class SessionHelper {
 
     public static function setStudentSession(string $studentNumber, string $department, string $email): void {
         self::start();
+        session_regenerate_id(true);
         $_SESSION['UserRole']           = 'student';
         $_SESSION['StudentNumber']      = trim($studentNumber);
         $_SESSION['CollegeDepartment'] = $department;
@@ -63,6 +103,7 @@ class SessionHelper {
 
     public static function setAdminSession(int $adminId, string $username, string $fullName, string $email = ''): void {
         self::start();
+        session_regenerate_id(true);
         $_SESSION['UserRole']      = 'admin';
         $_SESSION['AdminID']       = $adminId;
         $_SESSION['AdminUsername'] = $username;

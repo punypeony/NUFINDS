@@ -69,6 +69,8 @@ class Auth {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
 
+    SessionHelper::requireValidCsrf();
+
     $loginType = trim($_POST['LoginType'] ?? 'student');
     $email     = trim($_POST['StudentEmail'] ?? '');
 

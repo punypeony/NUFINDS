@@ -12,6 +12,8 @@ $studentEmail      = SessionHelper::get('StudentEmail', '');
 $collegeDepartment = SessionHelper::get('CollegeDepartment', '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_lost'])) {
+    SessionHelper::requireValidCsrf();
+
     $tracker = new ReportTracker();
     $result  = $tracker->cancelLostReport((int)($_POST['lost_id'] ?? 0), $studentNumber);
 

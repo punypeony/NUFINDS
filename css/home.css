@@ -461,24 +461,137 @@ small{
 
   .hero{
     flex-direction:column;
+    align-items:center;
     text-align:center;
-    padding:60px 20px;
+    padding:40px 20px 32px;
+    min-height:auto;
+  }
+
+  .left-content{
+    margin-left:0;
+    margin-bottom:32px;
+    max-width:100%;
+    width:100%;
+  }
+
+  .logo-hero{
+    height:100px;
+    padding-right:0;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .logo-title p{
+    font-size:20px;
+    margin-left:0;
   }
 
   .hero-buttons{
     align-items:center;
+    margin-left:0;
+    width:100%;
+  }
+
+  .btn{
+    width:100%;
+    max-width:300px;
+    font-size:22px;
+    padding:18px;
+  }
+
+  small{
+    margin-left:0;
+    font-size:15px;
   }
 
   .building{
     position:relative;
     width:100%;
-    height:400px;
+    height:280px;
     clip-path:none;
-    margin-top:40px;
+    margin-top:24px;
+  }
+
+  .home-title{
+    font-size:28px;
+    padding:18px 12px;
+    margin-bottom:32px;
   }
 
   .steps{
     flex-direction:column;
     align-items:center;
+    padding:40px 16px;
+    gap:32px;
+  }
+
+  .step-box{
+    width:100%;
+    max-width:340px;
+  }
+
+  .step-box h3{
+    font-size:24px;
+  }
+
+  .step-box p{
+    font-size:16px;
+  }
+
+  .step-icon{
+    width:100px;
+  }
+
+  .site-footer{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding:24px 16px;
+    gap:20px;
+  }
+
+  .footer-left,
+  .footer-middle,
+  .footer-right{
+    margin:0 !important;
+    max-width:100%;
+    min-width:0;
+    text-align:center;
+    padding:0;
+  }
+
+  .footer-left img{
+    margin:0 auto;
+    max-width:180px;
+    height:auto;
+  }
+
+  .site-footer .logo-header,
+  .footer-left .logo-header{
+    margin-left:0;
+    width:auto;
+    max-width:200px;
+  }
+
+  .footer-middle p,
+  .site-footer p{
+    justify-content:center;
+    flex-wrap:wrap;
+    white-space:normal;
+  }
+}
+
+@media(max-width:520px){
+  .logo-hero{
+    height:72px;
+  }
+
+  .btn{
+    font-size:18px;
+    padding:16px;
+  }
+
+  .home-title{
+    font-size:22px;
   }
 }

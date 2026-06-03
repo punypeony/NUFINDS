@@ -4,8 +4,21 @@
 
 1. Start MySQL and Apache on the XAMPP control panel.
 2. Copy the project folder into `htdocs`.
-3. Import `database/nufindsdb.sql` into MySQL.
-4. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
+3. Copy `config.example.php` to `config.php` and set your database credentials (defaults work for local XAMPP with `root` and no password).
+4. Import `database/nufindsdb.sql` into MySQL.
+5. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
+
+### Production deployment
+
+Before going live:
+
+- Set `NUFINDS_ENV` to `production` in `config.php`.
+- Use a dedicated MySQL user with a strong password (never `root` with an empty password).
+- Change the default admin password (`admin123`) immediately after import.
+- Do not use default student password `student123` on a live server.
+- Serve the site over HTTPS (session cookies use the `Secure` flag automatically when HTTPS is detected).
+
+`config.php` is gitignored — never commit live credentials.
 
 ### Student login
 

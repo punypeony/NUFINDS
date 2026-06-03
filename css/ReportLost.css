@@ -520,12 +520,26 @@ a {
 
 @media (max-width: 900px) {
   .main-container {
-    width: 92%;
-    padding: 30px 20px;
+    width: 100%;
+    max-width: 100%;
+    padding: 72px 16px 28px;
+    margin-top: 0;
+  }
+
+  .hero {
+    padding: 60px 12px 32px;
+    min-height: auto;
+    align-items: flex-start;
+  }
+
+  .building {
+    display: none;
   }
 
   .input-row {
     flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
   }
 
   textarea,
@@ -534,6 +548,40 @@ a {
   }
 
   .main-container h2 {
-    font-size: 34px;
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .category-container {
+    width: 100%;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .category-btn {
+    width: calc(50% - 8px);
+    min-height: 88px;
+    font-size: 11px;
+  }
+
+  .input-box input,
+  .input-box select {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-container h2 {
+    font-size: 24px;
+  }
+
+  .category-btn {
+    width: calc(50% - 6px);
+    min-height: 80px;
+  }
+
+  .category-btn img {
+    width: 32px;
+    height: 32px;
   }
 }

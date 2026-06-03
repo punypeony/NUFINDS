@@ -7,6 +7,8 @@ nufinds_require('lib/ImageUploader.php');
 SessionHelper::requireStudent();
 header('Content-Type: application/json; charset=utf-8');
 
+SessionHelper::requireValidCsrf();
+
 $reportType = strtolower(trim($_POST['report_type'] ?? ''));
 $itemImage  = ImageUploader::upload('ItemImage', $reportType === 'lost' ? 'lost' : 'found');
 

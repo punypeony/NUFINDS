@@ -9,6 +9,7 @@ extract(nufinds_page_entry('track'), EXTR_OVERWRITE);
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NU Finds - Track Reports</title>
 <link rel="stylesheet" href="<?= nufinds_asset('css/TrackReport.css') ?>">
+<link rel="stylesheet" href="<?= nufinds_asset('css/responsive.css') ?>">
 </head>
 <body>
 
@@ -79,6 +80,7 @@ extract(nufinds_page_entry('track'), EXTR_OVERWRITE);
                                 <?php if ($report['ReportType'] === 'Lost'): ?>
                                     <form method="post" action="trackreport.html" class="cancel-form"
                                           onsubmit="return confirm('Cancel this lost report?');">
+                                        <?= nufinds_csrf_field() ?>
                                         <input type="hidden" name="lost_id" value="<?= (int)$report['LostID'] ?>">
                                         <button type="submit" name="cancel_lost" class="cancel-btn">Cancel</button>
                                     </form>

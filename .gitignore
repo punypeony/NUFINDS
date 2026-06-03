@@ -1,0 +1,6 @@
+config.php
+nufinds_config.php
+uploads/*
+!uploads/.htaccess
+!uploads/lost/.gitkeep
+!uploads/found/.gitkeep

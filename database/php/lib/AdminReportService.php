@@ -29,7 +29,7 @@ class AdminReportService {
         }
 
         $sql = 'SELECT l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
-                       l.Category, l.Description, l.DateReported,
+                       l.Category, l.Description, l.Image, l.DateReported,
                        s.CollegeDepartment, s.StudentEmail
                 FROM lost l
                 INNER JOIN studentinfo s ON l.StudentNumber = s.StudentNumber
@@ -44,7 +44,7 @@ class AdminReportService {
         }
 
         $sql = 'SELECT f.FoundID, f.StudentNumber, f.Location, f.DateFound,
-                       f.Category, f.Description, f.Status, f.DateReported,
+                       f.Category, f.Description, f.Image, f.Status, f.DateReported,
                        s.CollegeDepartment, s.StudentEmail
                 FROM found f
                 INNER JOIN studentinfo s ON f.StudentNumber = s.StudentNumber

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="<?= nufinds_asset('css/home.css') ?>">
   <link rel="stylesheet" href="<?= nufinds_asset('css/admin-reports.css') ?>">
   <link rel="stylesheet" href="<?= nufinds_asset('css/verify-matches.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/responsive.css') ?>">
 </head>
 <body class="admin-reports-page verify-page">
 
@@ -58,6 +59,7 @@
             </div>
 
             <form class="verify-form" action="<?= nufinds_php_url('verify/verify_match.php') ?>" method="post">
+              <?= nufinds_csrf_field() ?>
               <input type="hidden" name="lost_id" value="<?= (int)$match['LostID'] ?>">
               <input type="hidden" name="found_id" value="<?= (int)$match['FoundID'] ?>">
               <button type="submit" class="verify-btn">Verify match</button>

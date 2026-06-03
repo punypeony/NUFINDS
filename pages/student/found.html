@@ -9,6 +9,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NU Finds - Report Found Item</title>
   <link rel="stylesheet" href="<?= nufinds_asset('css/ReportFound.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/responsive.css') ?>">
   <link rel="stylesheet" href="<?= nufinds_asset('css/report-popup.css') ?>">
   <link rel="stylesheet" href="<?= nufinds_asset('css/report-date-picker.css') ?>">
 </head>
@@ -48,6 +49,7 @@ extract(nufinds_page_entry('found'), EXTR_OVERWRITE);
 
       <form action="<?= nufinds_php_url('reports/ReportSubmission.php') ?>" method="post" id="report-form" enctype="multipart/form-data">
         <input type="hidden" name="report_type" value="found">
+        <?= nufinds_csrf_field() ?>
         <div class="input-row">
           <div class="input-box">
             <img src="<?= nufinds_asset('assets/images/location.png') ?>" alt="Location Icon">

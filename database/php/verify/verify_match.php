@@ -13,6 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+SessionHelper::requireValidCsrf();
+
 $verifier = new MatchVerifier();
 $result   = $verifier->verifyMatch(
     (int)($_POST['lost_id']  ?? 0),

@@ -117,3 +117,43 @@ function nufinds_report_date_max(): string
 {
     return date('Y-m-d');
 }
+
+function nufinds_csrf_token(): string
+{
+    nufinds_require('lib/SessionHelper.php');
+    return SessionHelper::generateCsrfToken();
+}
+
+function nufinds_csrf_field(): string
+{
+    return '<input type="hidden" name="csrf_token" value="'
+        . htmlspecialchars(nufinds_csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/** Build a browser URL for a stored upload path (supports legacy DB values). */
+function nufinds_upload_url(?string $path): ?string
+{
+    if ($path === null || trim($path) === '') {
+        return null;
+    }
+
+    $path = str_replace('\\', '/', trim($path));
+    $path = ltrim($path, '/');
+
+    if (str_starts_with($path, 'uploads/')) {
+        if (is_file(NUFINDS_APP_ROOT . '/' . $path)) {
+            return nufinds_asset($path);
+        }
+        $legacy = 'database/' . $path;
+        if (is_file(NUFINDS_APP_ROOT . '/' . $legacy)) {
+            return nufinds_asset($legacy);
+        }
+        return nufinds_asset($path);
+    }
+
+    if (str_starts_with($path, 'database/uploads/')) {
+        return nufinds_asset($path);
+    }
+
+    return nufinds_asset($path);
+}

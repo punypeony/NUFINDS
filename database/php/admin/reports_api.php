@@ -8,6 +8,7 @@ SessionHelper::requireAdmin();
 header('Content-Type: application/json; charset=utf-8');
 
 $payload = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+SessionHelper::requireValidCsrf($payload);
 $action  = $payload['action'] ?? '';
 
 $reports = new AdminReportService();
@@ -66,6 +67,10 @@ try {
             echo json_encode(['status' => 'error', 'message' => 'Unknown action.']);
     }
 } catch (Throwable $e) {
+    error_log('NUFINDS reports_api error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    $message = (defined('NUFINDS_ENV') && NUFINDS_ENV === 'production')
+        ? 'An unexpected error occurred. Please try again.'
+        : $e->getMessage();
+    echo json_encode(['status' => 'error', 'message' => $message]);
 }

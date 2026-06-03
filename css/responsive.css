@@ -1,0 +1,95 @@
+/* Shared mobile fixes — load after page-specific stylesheets */
+
+@media (max-width: 900px) {
+  .topbar {
+    padding: 0 12px;
+    min-height: 50px;
+  }
+
+  .topbar .logo-header {
+    height: 42px;
+    margin-right: 8px;
+  }
+
+  .topbar-user {
+    font-size: 13px;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .user-info {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .profile-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .profile-dropdown {
+    min-width: min(280px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+  }
+
+  .back-icon {
+    width: 50px;
+    height: 50px;
+    left: 10px;
+    top: 58px;
+  }
+
+  .back-icon img {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Report / track pages: hide decorative background on small screens */
+  .hero:has(.main-container) .building,
+  .track-section .building {
+    display: none;
+  }
+
+  .login-page .building {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    padding: 0 10px;
+  }
+
+  .topbar .logo-header {
+    height: 36px;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .admin-reports-container {
+    padding: 72px 12px 32px;
+  }
+
+  .admin-reports-header {
+    padding: 18px 14px;
+  }
+
+  .admin-reports-header h1 {
+    font-size: 22px;
+  }
+
+  .admin-reports-header p {
+    font-size: 14px;
+  }
+
+  .dept-section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 16px;
+  }
+}

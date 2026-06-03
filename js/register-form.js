@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!registerForm) return;
 
+  initFormCsrf(registerForm);
+
   const homeUrl = registerForm.dataset.homeUrl || 'student/home.html';
 
   registerForm.addEventListener('submit', async function (event) {
