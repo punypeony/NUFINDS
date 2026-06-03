@@ -3,6 +3,7 @@ require_once dirname(__DIR__) . '/lib/bootstrap.php';
 nufinds_require('lib/Database.php');
 nufinds_require('lib/SessionHelper.php');
 nufinds_require('lib/AdminAuth.php');
+nufinds_require('lib/LoginAttemptLimiter.php');
 
 class Auth {
     private mysqli $conn;
@@ -40,12 +41,12 @@ class Auth {
         $stmt->close();
 
         if (!$result || $result->num_rows !== 1) {
-            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.'];
+            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.', 'count_attempt' => true];
         }
 
         $row = $result->fetch_assoc();
         if (empty($row['PasswordHash']) || !password_verify($password, $row['PasswordHash'])) {
-            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.'];
+            return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.', 'count_attempt' => true];
         }
 
         SessionHelper::setStudentSession(
@@ -70,15 +71,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $loginType = trim($_POST['LoginType'] ?? 'student');
     $email     = trim($_POST['StudentEmail'] ?? '');
 
-    if ($loginType === 'admin' || AdminAuth::isAdminEmail($email)) {
-        $adminAuth = new AdminAuth();
-        $result    = $adminAuth->loginByEmail($email, $_POST['AdminPassword'] ?? '');
-        echo json_encode($result);
+    $lockout = LoginAttemptLimiter::checkLocked($email);
+    if ($lockout !== null) {
+        echo json_encode($lockout);
         exit;
     }
 
-    $auth   = new Auth();
-    $result = $auth->loginStudent($email, $_POST['StudentPassword'] ?? '');
+    if ($loginType === 'admin' || AdminAuth::isAdminEmail($email)) {
+        $adminAuth = new AdminAuth();
+        $result    = $adminAuth->loginByEmail($email, $_POST['AdminPassword'] ?? '');
+    } else {
+        $auth   = new Auth();
+        $result = $auth->loginStudent($email, $_POST['StudentPassword'] ?? '');
+    }
+
+    if ($result['status'] === 'success') {
+        LoginAttemptLimiter::clear($email);
+    } elseif (!empty($result['count_attempt'])) {
+        $result = LoginAttemptLimiter::recordFailure($email, $result);
+        unset($result['count_attempt']);
+    }
+
     echo json_encode($result);
     exit;
 }

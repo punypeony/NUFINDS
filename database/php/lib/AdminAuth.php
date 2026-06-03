@@ -37,7 +37,7 @@ class AdminAuth {
         }
 
         if (!self::isAdminEmail($email)) {
-            return ['status' => 'error', 'message' => 'Invalid admin credentials.'];
+            return ['status' => 'error', 'message' => 'Invalid admin credentials.', 'count_attempt' => true];
         }
 
         $stmt = $this->conn->prepare(
@@ -55,12 +55,12 @@ class AdminAuth {
         $stmt->close();
 
         if (!$result || $result->num_rows !== 1) {
-            return ['status' => 'error', 'message' => 'Invalid admin credentials.'];
+            return ['status' => 'error', 'message' => 'Invalid admin credentials.', 'count_attempt' => true];
         }
 
         $row = $result->fetch_assoc();
         if (!password_verify($password, $row['PasswordHash'])) {
-            return ['status' => 'error', 'message' => 'Invalid admin credentials.'];
+            return ['status' => 'error', 'message' => 'Invalid admin credentials.', 'count_attempt' => true];
         }
 
         SessionHelper::setAdminSession(

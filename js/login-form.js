@@ -10,6 +10,41 @@ function showPopup(type, message) {
   overlay.classList.remove('hidden');
 }
 
+function setFormLocked(form, locked) {
+  const submitBtn = form.querySelector('.submit-btn');
+  form.querySelectorAll('input').forEach((input) => {
+    input.disabled = locked;
+  });
+  if (submitBtn) {
+    submitBtn.disabled = locked;
+  }
+}
+
+function applyLoginLockout(form, seconds) {
+  let remaining = seconds;
+  setFormLocked(form, true);
+
+  const submitBtn = form.querySelector('.submit-btn');
+  const defaultLabel = submitBtn ? submitBtn.textContent : 'Submit';
+
+  const tick = () => {
+    if (submitBtn) {
+      submitBtn.textContent = `Locked (${remaining}s)`;
+    }
+    if (remaining <= 0) {
+      setFormLocked(form, false);
+      if (submitBtn) {
+        submitBtn.textContent = defaultLabel;
+      }
+      return;
+    }
+    remaining -= 1;
+    setTimeout(tick, 1000);
+  };
+
+  tick();
+}
+
 function setLoginMode(isAdmin) {
   const loginType = document.getElementById('login-type');
   const studentGroup = document.getElementById('student-password-group');
@@ -91,6 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loginForm.addEventListener('submit', async function (event) {
     event.preventDefault();
+    if (loginForm.querySelector('.submit-btn')?.disabled) return;
+
     try {
       const response = await fetch(loginForm.action, {
         method: 'POST',
@@ -106,8 +143,15 @@ document.addEventListener('DOMContentLoaded', function () {
           window.location.href = result.role === 'admin' ? adminHomeUrl : studentHomeUrl;
         };
       } else {
-        showPopup('error', result.message || 'Login failed. Please try again.');
+        let message = result.message || 'Login failed. Please try again.';
+        if (result.attempts_remaining != null) {
+          message += ` ${result.attempts_remaining} attempt(s) remaining.`;
+        }
+        showPopup('error', message);
         popupOk.onclick = () => popupOverlay.classList.add('hidden');
+        if (result.locked && result.retry_after) {
+          applyLoginLockout(loginForm, result.retry_after);
+        }
       }
     } catch (error) {
       showPopup('error', 'Unable to submit login. Please try again.');
