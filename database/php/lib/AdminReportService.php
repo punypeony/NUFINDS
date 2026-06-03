@@ -53,6 +53,36 @@ class AdminReportService {
         return $this->groupByDepartment($this->fetchRows($sql));
     }
 
+    public function searchLostGroupedByDepartment(string $query): array {
+        $query = trim($query);
+        if ($query === '') {
+            return $this->getLostGroupedByDepartment();
+        }
+
+        if (DbProcedure::procedureExists($this->conn, 'sp_admin_search_lost_reports')) {
+            return $this->groupByDepartment(
+                DbProcedure::callRows($this->conn, 'sp_admin_search_lost_reports', 's', [$query])
+            );
+        }
+
+        return $this->groupByDepartment($this->searchLostRowsFallback($query));
+    }
+
+    public function searchFoundGroupedByDepartment(string $query): array {
+        $query = trim($query);
+        if ($query === '') {
+            return $this->getFoundGroupedByDepartment();
+        }
+
+        if (DbProcedure::procedureExists($this->conn, 'sp_admin_search_found_reports')) {
+            return $this->groupByDepartment(
+                DbProcedure::callRows($this->conn, 'sp_admin_search_found_reports', 's', [$query])
+            );
+        }
+
+        return $this->groupByDepartment($this->searchFoundRowsFallback($query));
+    }
+
     public function updateLost(int $lostId, array $data): array {
         if ($lostId <= 0) {
             return ['status' => 'error', 'message' => 'Invalid lost report.'];
@@ -191,5 +221,61 @@ class AdminReportService {
         }
 
         return $grouped;
+    }
+
+    private function searchLostRowsFallback(string $query): array {
+        $like = '%' . $query . '%';
+        $sql  = 'SELECT l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
+                        l.Category, l.Description, l.Image, l.DateReported,
+                        s.CollegeDepartment, s.StudentEmail
+                 FROM lost l
+                 INNER JOIN studentinfo s ON l.StudentNumber = s.StudentNumber
+                 WHERE l.TicketNumber LIKE ? OR l.StudentNumber LIKE ? OR s.StudentEmail LIKE ?
+                    OR l.Location LIKE ? OR l.Category LIKE ? OR l.Description LIKE ?
+                 ORDER BY s.CollegeDepartment ASC, l.DateLost DESC';
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+        $stmt->bind_param('ssssss', $like, $like, $like, $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows   = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        $stmt->close();
+
+        return $rows;
+    }
+
+    private function searchFoundRowsFallback(string $query): array {
+        $like = '%' . $query . '%';
+        $sql  = 'SELECT f.FoundID, f.StudentNumber, f.Location, f.DateFound,
+                        f.Category, f.Description, f.Image, f.Status, f.DateReported,
+                        s.CollegeDepartment, s.StudentEmail
+                 FROM found f
+                 INNER JOIN studentinfo s ON f.StudentNumber = s.StudentNumber
+                 WHERE CAST(f.FoundID AS CHAR) LIKE ? OR f.StudentNumber LIKE ? OR s.StudentEmail LIKE ?
+                    OR f.Location LIKE ? OR f.Category LIKE ? OR f.Description LIKE ? OR f.Status LIKE ?
+                 ORDER BY s.CollegeDepartment ASC, f.DateFound DESC';
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+        $stmt->bind_param('sssssss', $like, $like, $like, $like, $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows   = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        $stmt->close();
+
+        return $rows;
     }
 }

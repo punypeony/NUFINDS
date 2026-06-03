@@ -29,7 +29,7 @@ Use the main login at `pages/login.html` with **email and password**. College de
 | Email | `juansantos@students.national-u.edu.ph` |
 | Password | `student123` |
 
-New students can register at `pages/register.html` with college department, student number, NU email, and password.
+New students register at `pages/register.html` with college department, NU email, and password. A student ID is assigned automatically (`YYYY-0001`, e.g. `2026-0001` for the first account in 2026).
 
 Run `database/student_passwords.sql` in phpMyAdmin if you already imported the database before student passwords were added.
 
@@ -42,7 +42,9 @@ When you enter the **admin email**, the form switches to **Admin Password**.
 | Admin email | `nufindshelpdesk@gmail.com` |
 | Password | `secret` |
 
-**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable). Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
+**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable). LOST, FOUND, VERIFY, and HISTORY include a search bar (ticket, student ID, email, location, category, description — not department on lost/found). Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
+
+Re-run `database/stored_procedures.sql` in phpMyAdmin after pulling updates to add search procedures and auto student ID generation.
 
 **Students:** LOST / FOUND (submit reports) and TRACK only.
 

@@ -7,12 +7,18 @@ nufinds_require('lib/AdminReportService.php');
 
 SessionHelper::requireAdmin();
 
-$service = new AdminReportService();
-$grouped = $service->getFoundGroupedByDepartment();
+$service     = new AdminReportService();
+$searchQuery = trim($_GET['q'] ?? '');
+$grouped     = $searchQuery !== ''
+    ? $service->searchFoundGroupedByDepartment($searchQuery)
+    : $service->getFoundGroupedByDepartment();
 
 return [
     'adminName'     => htmlspecialchars(SessionHelper::get('AdminName', 'Admin'), ENT_QUOTES, 'UTF-8'),
     'adminEmail'    => htmlspecialchars(SessionHelper::get('AdminEmail', ''), ENT_QUOTES, 'UTF-8'),
+    'searchQuery'   => $searchQuery,
+    'searchAction'  => '',
+    'searchClearUrl'=> 'found.html',
     'grouped'       => $grouped,
     'totalCount'    => array_sum(array_map('count', $grouped)),
     'categories'    => AdminReportService::categories(),

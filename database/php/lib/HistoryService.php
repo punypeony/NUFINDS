@@ -10,33 +10,11 @@ class HistoryService {
     }
 
     public function getArchivedMatches(): array {
-        $rows = DbProcedure::procedureExists($this->conn, 'sp_admin_get_history')
-            ? DbProcedure::callRows($this->conn, 'sp_admin_get_history')
-            : $this->fetchAll('SELECT * FROM history ORDER BY DateCompleted DESC, HistoryID DESC');
+        return $this->groupHistoryRows($this->fetchHistoryRows(''));
+    }
 
-        if (!$this->hasMatchGroupColumn()) {
-            return $this->wrapLegacyRows($rows);
-        }
-
-        $groups = [];
-        foreach ($rows as $row) {
-            $key = $row['MatchGroupID'] ?: ('legacy-' . $row['HistoryID']);
-            if (!isset($groups[$key])) {
-                $groups[$key] = [
-                    'matchGroupId'  => $row['MatchGroupID'] ?? null,
-                    'dateCompleted' => $row['DateCompleted'],
-                    'lost'          => null,
-                    'found'         => null,
-                ];
-            }
-            if ($row['ReportType'] === 'Lost') {
-                $groups[$key]['lost'] = $row;
-            } elseif ($row['ReportType'] === 'Found') {
-                $groups[$key]['found'] = $row;
-            }
-        }
-
-        return array_values($groups);
+    public function searchArchivedMatches(string $query): array {
+        return $this->groupHistoryRows($this->fetchHistoryRows(trim($query)));
     }
 
     public function getTotalCount(): int {
@@ -122,6 +100,74 @@ class HistoryService {
         $result = $this->conn->query("SHOW COLUMNS FROM history LIKE 'MatchGroupID'");
 
         return $result && $result->num_rows > 0;
+    }
+
+    private function fetchHistoryRows(string $query): array {
+        if ($query !== '' && DbProcedure::procedureExists($this->conn, 'sp_admin_search_history')) {
+            return DbProcedure::callRows($this->conn, 'sp_admin_search_history', 's', [$query]);
+        }
+
+        if ($query !== '') {
+            return $this->searchHistoryRowsFallback($query);
+        }
+
+        return DbProcedure::procedureExists($this->conn, 'sp_admin_get_history')
+            ? DbProcedure::callRows($this->conn, 'sp_admin_get_history')
+            : $this->fetchAll('SELECT * FROM history ORDER BY DateCompleted DESC, HistoryID DESC');
+    }
+
+    private function groupHistoryRows(array $rows): array {
+        if (!$this->hasMatchGroupColumn()) {
+            return $this->wrapLegacyRows($rows);
+        }
+
+        $groups = [];
+        foreach ($rows as $row) {
+            $key = $row['MatchGroupID'] ?: ('legacy-' . $row['HistoryID']);
+            if (!isset($groups[$key])) {
+                $groups[$key] = [
+                    'matchGroupId'  => $row['MatchGroupID'] ?? null,
+                    'dateCompleted' => $row['DateCompleted'],
+                    'lost'          => null,
+                    'found'         => null,
+                ];
+            }
+            if ($row['ReportType'] === 'Lost') {
+                $groups[$key]['lost'] = $row;
+            } elseif ($row['ReportType'] === 'Found') {
+                $groups[$key]['found'] = $row;
+            }
+        }
+
+        return array_values($groups);
+    }
+
+    private function searchHistoryRowsFallback(string $query): array {
+        $like = '%' . $query . '%';
+        $sql  = 'SELECT h.*
+                 FROM history h
+                 LEFT JOIN studentinfo s ON h.StudentNumber = s.StudentNumber
+                 WHERE IFNULL(h.TicketNumber, \'\') LIKE ? OR h.StudentNumber LIKE ?
+                    OR IFNULL(s.StudentEmail, \'\') LIKE ? OR h.Location LIKE ?
+                    OR h.Category LIKE ? OR h.Description LIKE ? OR h.FinalStatus LIKE ?
+                    OR IFNULL(h.MatchGroupID, \'\') LIKE ? OR CAST(h.HistoryID AS CHAR) LIKE ?
+                 ORDER BY h.DateCompleted DESC, h.HistoryID DESC';
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+        $stmt->bind_param('ssssssss', $like, $like, $like, $like, $like, $like, $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows   = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        $stmt->close();
+
+        return $rows;
     }
 
     private function wrapLegacyRows(array $rows): array {

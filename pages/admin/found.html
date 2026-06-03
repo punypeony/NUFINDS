@@ -27,8 +27,10 @@ extract(nufinds_page_entry('admin-found'), EXTR_OVERWRITE);
       <p><?= (int)($totalCount ?? 0) ?> report(s) — edit fields inline, then Save or Delete.</p>
     </div>
 
+    <?php require __DIR__ . '/_search-bar.php'; ?>
+
     <?php if (($totalCount ?? 0) === 0): ?>
-      <div class="empty-state">No found reports in the system yet.</div>
+      <div class="empty-state"><?= ($searchQuery ?? '') !== '' ? 'No found reports match your search.' : 'No found reports in the system yet.' ?></div>
     <?php else: ?>
       <?php foreach (($grouped ?? []) as $department => $reports): ?>
         <section class="dept-section">

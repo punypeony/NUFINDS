@@ -25,9 +25,15 @@
       <p>Review paired lost and found reports. Confirming moves them to <a class="header-inline-link" href="<?= nufinds_admin_page('history.html') ?>">History</a>.</p>
     </div>
 
+    <?php
+    $searchAction   = $verifyUrl ?? nufinds_php_url('verify/verify_matches.php');
+    $searchClearUrl = $searchAction;
+    require dirname(__DIR__) . '/admin/_search-bar.php';
+    ?>
+
     <div id="cards-container" class="verify-grid">
       <?php if (count($matches) === 0): ?>
-        <div class="empty-state">No pending matches to verify right now.</div>
+        <div class="empty-state"><?= ($searchQuery ?? '') !== '' ? 'No pending matches match your search.' : 'No pending matches to verify right now.' ?></div>
       <?php else: ?>
         <?php foreach ($matches as $match): ?>
           <article class="verify-card" data-lost-id="<?= (int)$match['LostID'] ?>">

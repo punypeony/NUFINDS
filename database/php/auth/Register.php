@@ -3,6 +3,7 @@ require_once dirname(__DIR__) . '/lib/bootstrap.php';
 nufinds_require('lib/Database.php');
 nufinds_require('lib/SessionHelper.php');
 nufinds_require('lib/AdminAuth.php');
+nufinds_require('lib/StudentNumberGenerator.php');
 
 class Register {
     private const DEPARTMENTS = [
@@ -22,22 +23,16 @@ class Register {
     }
 
     public function register(
-        string $studentNumber,
         string $department,
         string $email,
         string $password,
         string $confirmPassword
     ): array {
-        $studentNumber = trim($studentNumber);
-        $department    = trim($department);
-        $email         = strtolower(trim($email));
+        $department = trim($department);
+        $email      = strtolower(trim($email));
 
-        if ($studentNumber === '' || $department === '' || $email === '' || $password === '' || $confirmPassword === '') {
+        if ($department === '' || $email === '' || $password === '' || $confirmPassword === '') {
             return ['status' => 'error', 'message' => 'Please fill in all fields.'];
-        }
-
-        if (strlen($studentNumber) > 20) {
-            return ['status' => 'error', 'message' => 'Student number must be 20 characters or fewer.'];
         }
 
         if (!in_array($department, self::DEPARTMENTS, true)) {
@@ -65,16 +60,14 @@ class Register {
             return ['status' => 'error', 'message' => 'Passwords do not match.'];
         }
 
-        if ($this->studentNumberExists($studentNumber)) {
-            return ['status' => 'error', 'message' => 'This student number is already registered.'];
-        }
-
         if ($this->emailExists($email)) {
             return ['status' => 'error', 'message' => 'This email is already registered.'];
         }
 
+        $studentNumber = StudentNumberGenerator::generate($this->conn);
+
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->conn->prepare(
+        $stmt         = $this->conn->prepare(
             'INSERT INTO studentinfo (StudentNumber, CollegeDepartment, StudentEmail, PasswordHash)
              VALUES (?, ?, ?, ?)'
         );
@@ -92,21 +85,12 @@ class Register {
 
         SessionHelper::setStudentSession($studentNumber, $department, $email);
 
-        return ['status' => 'success', 'message' => 'Account created successfully.', 'role' => 'student'];
-    }
-
-    private function studentNumberExists(string $studentNumber): bool {
-        $stmt = $this->conn->prepare('SELECT StudentNumber FROM studentinfo WHERE StudentNumber = ? LIMIT 1');
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param('s', $studentNumber);
-        $stmt->execute();
-        $exists = $stmt->get_result()->num_rows === 1;
-        $stmt->close();
-
-        return $exists;
+        return [
+            'status'        => 'success',
+            'message'       => 'Account created. Your student ID is ' . $studentNumber . '.',
+            'role'          => 'student',
+            'studentNumber' => $studentNumber,
+        ];
     }
 
     private function emailExists(string $email): bool {
@@ -131,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $register = new Register();
     $result   = $register->register(
-        trim($_POST['StudentNumber'] ?? ''),
         trim($_POST['CollegeDepartment'] ?? ''),
         trim($_POST['StudentEmail'] ?? ''),
         $_POST['StudentPassword'] ?? '',

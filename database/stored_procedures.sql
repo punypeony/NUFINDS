@@ -209,4 +209,120 @@ BEGIN
     COMMIT;
 END$$
 
+-- ---------------------------------------------------------------------------
+-- Student registration: auto ID YYYY-0001 for current year
+-- ---------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_generate_student_number$$
+CREATE PROCEDURE sp_generate_student_number()
+BEGIN
+    DECLARE v_year INT DEFAULT YEAR(CURDATE());
+    DECLARE v_seq INT DEFAULT 1;
+
+    SELECT IFNULL(MAX(CAST(SUBSTRING(StudentNumber, 6) AS UNSIGNED)), 0) + 1
+    INTO v_seq
+    FROM studentinfo
+    WHERE StudentNumber REGEXP CONCAT('^', v_year, '-[0-9]{4}$');
+
+    SELECT CONCAT(v_year, '-', LPAD(v_seq, 4, '0')) AS StudentNumber;
+END$$
+
+-- ---------------------------------------------------------------------------
+-- Admin search (ticket, student ID, email, location, category, description)
+-- ---------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_admin_search_lost_reports$$
+CREATE PROCEDURE sp_admin_search_lost_reports(IN p_query VARCHAR(255))
+BEGIN
+    SET p_query = TRIM(IFNULL(p_query, ''));
+    SELECT l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
+           l.Category, l.Description, l.Image, l.DateReported,
+           s.CollegeDepartment, s.StudentEmail
+    FROM lost l
+    INNER JOIN studentinfo s ON l.StudentNumber = s.StudentNumber
+    WHERE p_query = ''
+       OR l.TicketNumber LIKE CONCAT('%', p_query, '%')
+       OR l.StudentNumber LIKE CONCAT('%', p_query, '%')
+       OR s.StudentEmail LIKE CONCAT('%', p_query, '%')
+       OR l.Location LIKE CONCAT('%', p_query, '%')
+       OR l.Category LIKE CONCAT('%', p_query, '%')
+       OR l.Description LIKE CONCAT('%', p_query, '%')
+    ORDER BY s.CollegeDepartment ASC, l.DateLost DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_admin_search_found_reports$$
+CREATE PROCEDURE sp_admin_search_found_reports(IN p_query VARCHAR(255))
+BEGIN
+    SET p_query = TRIM(IFNULL(p_query, ''));
+    SELECT f.FoundID, f.StudentNumber, f.Location, f.DateFound,
+           f.Category, f.Description, f.Image, f.Status, f.DateReported,
+           s.CollegeDepartment, s.StudentEmail
+    FROM found f
+    INNER JOIN studentinfo s ON f.StudentNumber = s.StudentNumber
+    WHERE p_query = ''
+       OR CAST(f.FoundID AS CHAR) LIKE CONCAT('%', p_query, '%')
+       OR f.StudentNumber LIKE CONCAT('%', p_query, '%')
+       OR s.StudentEmail LIKE CONCAT('%', p_query, '%')
+       OR f.Location LIKE CONCAT('%', p_query, '%')
+       OR f.Category LIKE CONCAT('%', p_query, '%')
+       OR f.Description LIKE CONCAT('%', p_query, '%')
+       OR f.Status LIKE CONCAT('%', p_query, '%')
+    ORDER BY s.CollegeDepartment ASC, f.DateFound DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_admin_search_history$$
+CREATE PROCEDURE sp_admin_search_history(IN p_query VARCHAR(255))
+BEGIN
+    SET p_query = TRIM(IFNULL(p_query, ''));
+    SELECT h.*
+    FROM history h
+    LEFT JOIN studentinfo s ON h.StudentNumber = s.StudentNumber
+    WHERE p_query = ''
+       OR IFNULL(h.TicketNumber, '') LIKE CONCAT('%', p_query, '%')
+       OR h.StudentNumber LIKE CONCAT('%', p_query, '%')
+       OR IFNULL(s.StudentEmail, '') LIKE CONCAT('%', p_query, '%')
+       OR h.Location LIKE CONCAT('%', p_query, '%')
+       OR h.Category LIKE CONCAT('%', p_query, '%')
+       OR h.Description LIKE CONCAT('%', p_query, '%')
+       OR h.FinalStatus LIKE CONCAT('%', p_query, '%')
+       OR IFNULL(h.MatchGroupID, '') LIKE CONCAT('%', p_query, '%')
+       OR CAST(h.HistoryID AS CHAR) LIKE CONCAT('%', p_query, '%')
+    ORDER BY h.DateCompleted DESC, h.HistoryID DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_admin_search_pending_matches$$
+CREATE PROCEDURE sp_admin_search_pending_matches(IN p_query VARCHAR(255))
+BEGIN
+    SET p_query = TRIM(IFNULL(p_query, ''));
+    SELECT
+        l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
+        l.Category, l.Description,
+        f.FoundID, f.StudentNumber AS FoundBy, f.Location AS FoundLocation,
+        f.DateFound, f.Status
+    FROM lost l
+    INNER JOIN studentinfo s_lost ON l.StudentNumber = s_lost.StudentNumber
+    INNER JOIN found f ON
+        l.Category = f.Category
+        AND l.StudentNumber <> f.StudentNumber
+        AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -3 AND 30
+        AND f.Status = 'Unclaimed'
+    INNER JOIN studentinfo s_found ON f.StudentNumber = s_found.StudentNumber
+    WHERE l.LostID NOT IN (
+        SELECT OriginalReportID FROM history WHERE ReportType = 'Lost'
+    )
+    AND (
+        p_query = ''
+        OR l.TicketNumber LIKE CONCAT('%', p_query, '%')
+        OR l.StudentNumber LIKE CONCAT('%', p_query, '%')
+        OR s_lost.StudentEmail LIKE CONCAT('%', p_query, '%')
+        OR l.Location LIKE CONCAT('%', p_query, '%')
+        OR l.Category LIKE CONCAT('%', p_query, '%')
+        OR l.Description LIKE CONCAT('%', p_query, '%')
+        OR f.StudentNumber LIKE CONCAT('%', p_query, '%')
+        OR s_found.StudentEmail LIKE CONCAT('%', p_query, '%')
+        OR f.Location LIKE CONCAT('%', p_query, '%')
+    )
+    ORDER BY l.DateLost DESC;
+END$$
+
 DELIMITER ;

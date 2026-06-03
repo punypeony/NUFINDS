@@ -25,11 +25,13 @@ extract(nufinds_page_entry('admin-history'), EXTR_OVERWRITE);
   <div class="admin-reports-container">
     <div class="admin-reports-header">
       <h1>Match History Archive</h1>
-      <p><?= (int)$totalCount ?> archived record(s) — edit or delete any row below.</p>
+      <p><?= (int)$totalCount ?><?= ($searchQuery ?? '') !== '' ? ' match(es) found' : ' archived record(s)' ?> — edit or delete any row below.</p>
     </div>
 
+    <?php require __DIR__ . '/_search-bar.php'; ?>
+
     <?php if (count($matchGroups) === 0): ?>
-      <div class="empty-state">No verified matches in history yet. Verify a match to archive it here.</div>
+      <div class="empty-state"><?= ($searchQuery ?? '') !== '' ? 'No history records match your search.' : 'No verified matches in history yet. Verify a match to archive it here.' ?></div>
     <?php else: ?>
       <?php foreach ($matchGroups as $group): ?>
         <article class="history-match-card">
