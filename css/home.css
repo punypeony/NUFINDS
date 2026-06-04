@@ -237,7 +237,8 @@ body{
 }
 
 .found,
-.notify{
+.notify,
+.users{
   background:#f2c100;
   color:#25358c;
 }

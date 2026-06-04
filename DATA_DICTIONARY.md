@@ -29,6 +29,7 @@ Reference table for valid student identities used during login and report submis
 | `StudentNumber` | `varchar(20)` | NO | PK | none | Unique student ID used as the main identity key across the app. |
 | `CollegeDepartment` | `enum(...)` | NO |  | none | Student's college/department; must be one of the defined NU college enum values. |
 | `StudentEmail` | `varchar(50)` | NO | UNIQUE | none | Student email used in login validation. |
+| `IsActive` | `tinyint(1)` | NO |  | `1` | When `0`, the student cannot sign in (admin-deactivated account). |
 
 ### `CollegeDepartment` allowed values
 - `COLLEGE OF ALLIED HEALTH`

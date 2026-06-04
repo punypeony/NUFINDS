@@ -116,7 +116,11 @@ class NotificationService {
             return ['status' => 'error', 'message' => 'Title and message are required.'];
         }
 
-        $result = $this->conn->query('SELECT StudentNumber FROM studentinfo');
+        require_once __DIR__ . '/AdminUserService.php';
+        $sql = AdminUserService::hasIsActiveColumn($this->conn)
+            ? 'SELECT StudentNumber FROM studentinfo WHERE IsActive = 1'
+            : 'SELECT StudentNumber FROM studentinfo';
+        $result = $this->conn->query($sql);
         if (!$result) {
             return ['status' => 'error', 'message' => 'Could not load students.'];
         }

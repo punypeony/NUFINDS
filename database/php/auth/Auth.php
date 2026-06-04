@@ -3,6 +3,7 @@ require_once dirname(__DIR__) . '/lib/bootstrap.php';
 nufinds_require('lib/Database.php');
 nufinds_require('lib/SessionHelper.php');
 nufinds_require('lib/AdminAuth.php');
+nufinds_require('lib/AdminUserService.php');
 nufinds_require('lib/LoginAttemptLimiter.php');
 
 class Auth {
@@ -26,9 +27,11 @@ class Auth {
             return ['status' => 'error', 'message' => 'Use your admin password for this email.'];
         }
 
-        $sql = 'SELECT StudentNumber, CollegeDepartment, StudentEmail, PasswordHash
-                FROM studentinfo
-                WHERE LOWER(StudentEmail) = ?';
+        $sql = 'SELECT StudentNumber, CollegeDepartment, StudentEmail, PasswordHash';
+        if (AdminUserService::hasIsActiveColumn($this->conn)) {
+            $sql .= ', IsActive';
+        }
+        $sql .= ' FROM studentinfo WHERE LOWER(StudentEmail) = ?';
 
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
@@ -47,6 +50,10 @@ class Auth {
         $row = $result->fetch_assoc();
         if (empty($row['PasswordHash']) || !password_verify($password, $row['PasswordHash'])) {
             return ['status' => 'error', 'message' => 'Login failed. Please check your credentials.', 'count_attempt' => true];
+        }
+
+        if (isset($row['IsActive']) && (int)$row['IsActive'] !== 1) {
+            return ['status' => 'error', 'message' => 'This account has been deactivated. Contact the NU Finds help desk.'];
         }
 
         SessionHelper::setStudentSession(
