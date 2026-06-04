@@ -1,0 +1,74 @@
+<?php
+require_once __DIR__ . '/../_load.php';
+extract(nufinds_page_entry('admin-notifications'), EXTR_OVERWRITE);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NU Finds - Send Notifications</title>
+  <link rel="stylesheet" href="<?= nufinds_asset('css/home.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/admin-reports.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/notifications.css') ?>">
+  <link rel="stylesheet" href="<?= nufinds_asset('css/responsive.css') ?>">
+</head>
+<body class="admin-reports-page admin-notify-page" data-csrf-token="<?= htmlspecialchars(nufinds_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+
+<div class="container">
+  <?php require __DIR__ . '/_topbar.php'; ?>
+
+  <a href="home.html" class="back-icon">
+    <img src="<?= nufinds_asset('assets/images/back.png') ?>" alt="Back">
+  </a>
+
+  <div class="admin-reports-container">
+    <div class="admin-reports-header">
+      <h1>Send Notifications</h1>
+      <p>Message students in real time. They see alerts in the bell on their dashboard and report pages.</p>
+    </div>
+
+    <form id="notify-form" class="notify-form-card"
+          data-api-url="<?= htmlspecialchars($notificationsApiUrl, ENT_QUOTES, 'UTF-8') ?>"
+          data-csrf-token="<?= htmlspecialchars(nufinds_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+
+      <label for="notify-preset">Message template</label>
+      <select id="notify-preset" name="preset">
+        <option value="custom">Custom message</option>
+      </select>
+
+      <label for="notify-title">Title</label>
+      <input type="text" id="notify-title" name="title" maxlength="120" required placeholder="e.g. Potential match found">
+
+      <label for="notify-message">Message</label>
+      <textarea id="notify-message" name="message" required placeholder="Write what students should see…"></textarea>
+
+      <span class="notify-form-card label-block">Send to</span>
+      <div class="notify-audience">
+        <label><input type="radio" name="audience" value="one" checked> One student</label>
+        <label><input type="radio" name="audience" value="all"> All students</label>
+      </div>
+
+      <div id="notify-target-wrap" class="notify-target-wrap">
+        <label for="notify-target">Student ID or email</label>
+        <input type="text" id="notify-target" name="target" placeholder="2026-0001 or name@students.national-u.edu.ph">
+      </div>
+
+      <p id="notify-status" class="notify-recent-meta" aria-live="polite"></p>
+
+      <div class="notify-actions">
+        <button type="submit" class="notify-submit">Send notification</button>
+      </div>
+    </form>
+
+    <section class="notify-recent">
+      <h2>Recently sent</h2>
+      <div id="notify-recent-list"></div>
+    </section>
+  </div>
+</div>
+
+<script src="<?= nufinds_asset('js/home.js') ?>"></script>
+<script src="<?= nufinds_asset('js/admin-notifications.js') ?>"></script>
+</body>
+</html>

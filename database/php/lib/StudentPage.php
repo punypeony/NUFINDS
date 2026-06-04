@@ -28,5 +28,6 @@ function nufinds_load_student_profile(): array
         'displayStudentNumber'     => htmlspecialchars($studentNumber, ENT_QUOTES, 'UTF-8'),
         'displayCollegeDepartment' => htmlspecialchars($collegeDepartment ?: 'College Department', ENT_QUOTES, 'UTF-8'),
         'profileEmail'             => htmlspecialchars($studentEmail ?: 'userloggedin@students.national-u.edu.ph', ENT_QUOTES, 'UTF-8'),
+        'notificationsApiUrl'      => nufinds_php_url('student/notifications_api.php'),
     ];
 }

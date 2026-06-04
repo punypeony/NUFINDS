@@ -5,7 +5,7 @@
 1. Start MySQL and Apache on the XAMPP control panel.
 2. Copy the project folder into `htdocs`.
 3. Copy `config.example.php` to `config.php` and set your database credentials (defaults work for local XAMPP with `root` and no password).
-4. Import `database/nufindsdb.sql` into MySQL.
+4. Import `database/nufindsdb.sql` into MySQL, then `database/notifications.sql` (student alerts), then `database/stored_procedures.sql` and `database/triggers.sql` if you use those features.
 5. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
 
 ### Production deployment
@@ -42,7 +42,7 @@ When you enter the **admin email**, the form switches to **Admin Password**.
 | Admin email | `nufindshelpdesk@gmail.com` |
 | Password | `secret` |
 
-**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable). LOST, FOUND, VERIFY, and HISTORY include a search bar (ticket, student ID, email, location, category, description — not department on lost/found). Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
+**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable), NOTIFY (send messages to students). LOST, FOUND, VERIFY, and HISTORY include a search bar (ticket, student ID, email, location, category, description — not department on lost/found). Students see a **bell icon** in the top bar; new messages appear within ~12 seconds (polling) plus a toast popup. Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
 
 Re-run `database/stored_procedures.sql` in phpMyAdmin after pulling updates to add search procedures and auto student ID generation.
 
@@ -66,6 +66,7 @@ Run `database/admin_accounts.sql` in phpMyAdmin if you already imported the data
 | `admin/lost.html` | All lost reports by department |
 | `admin/found.html` | All found reports by department |
 | `admin/history.html` | Archive of verified matches (edit/delete rows) |
+| `admin/notifications.html` | Send custom notifications to one or all students |
 
 All `.html` files under `pages/` run as PHP via `pages/.htaccess`. Form posts and verify still use `database/php/`.
 
