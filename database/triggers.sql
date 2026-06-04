@@ -1,5 +1,5 @@
 -- NUFinds MySQL triggers
--- Import in phpMyAdmin after nufindsdb.sql, history_match_group.sql, and stored_procedures.sql
+-- Import in phpMyAdmin after nufindsdb.sql, matches.sql, history_match_group.sql, and stored_procedures.sql
 -- Database: nufindsdb
 
 DELIMITER $$
@@ -135,6 +135,26 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Student number does not exist in student records.';
     END IF;
+END$$
+
+-- ---------------------------------------------------------------------------
+-- MATCHES: drop pending rows when source reports are deleted
+-- ---------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS trg_lost_after_delete$$
+CREATE TRIGGER trg_lost_after_delete
+AFTER DELETE ON lost
+FOR EACH ROW
+BEGIN
+    DELETE FROM matches WHERE LostID = OLD.LostID AND Status = 'pending';
+END$$
+
+DROP TRIGGER IF EXISTS trg_found_after_delete$$
+CREATE TRIGGER trg_found_after_delete
+AFTER DELETE ON found
+FOR EACH ROW
+BEGIN
+    DELETE FROM matches WHERE FoundID = OLD.FoundID AND Status = 'pending';
 END$$
 
 -- ---------------------------------------------------------------------------

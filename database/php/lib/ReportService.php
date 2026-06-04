@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/MatchService.php';
 
 class ReportService {
     private mysqli $conn;
@@ -113,6 +114,8 @@ class ReportService {
             return ['status' => 'error', 'message' => 'Unable to save the found item report. Please try again later.'];
         }
 
+        (new MatchService())->syncPending();
+
         return ['status' => 'success', 'message' => 'Your found item report has been successfully submitted.'];
     }
 
@@ -135,6 +138,8 @@ class ReportService {
         if (!$stmt->execute()) {
             return ['status' => 'error', 'message' => 'Unable to save the lost item report. Please try again later.'];
         }
+
+        (new MatchService())->syncPending();
 
         return [
             'status'  => 'success',

@@ -1,4 +1,4 @@
--- Import in phpMyAdmin (database: nufindsdb) after nufindsdb.sql and history_match_group.sql
+-- Import in phpMyAdmin (database: nufindsdb) after nufindsdb.sql, matches.sql, and history_match_group.sql
 -- Uses stored procedures for admin reports, verify, and history.
 
 DELIMITER $$
@@ -114,29 +114,71 @@ BEGIN
     DELETE FROM history WHERE HistoryID = p_history_id;
 END$$
 
-DROP PROCEDURE IF EXISTS sp_get_pending_matches$$
-CREATE PROCEDURE sp_get_pending_matches()
+DROP PROCEDURE IF EXISTS sp_sync_pending_matches$$
+CREATE PROCEDURE sp_sync_pending_matches()
 BEGIN
-    SELECT
-        l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
-        l.Category, l.Description,
-        f.FoundID, f.StudentNumber AS FoundBy, f.Location AS FoundLocation,
-        f.DateFound, f.Status
+    DELETE m FROM matches m
+    LEFT JOIN lost l ON m.LostID = l.LostID
+    LEFT JOIN found f ON m.FoundID = f.FoundID
+    WHERE m.Status = 'pending'
+      AND (
+        l.LostID IS NULL
+        OR f.FoundID IS NULL
+        OR f.Status <> 'Unclaimed'
+        OR l.Category <> f.Category
+        OR l.StudentNumber = f.StudentNumber
+        OR DATEDIFF(f.DateFound, l.DateLost) NOT BETWEEN -3 AND 30
+      );
+
+    INSERT IGNORE INTO matches (LostID, FoundID, Status)
+    SELECT l.LostID, f.FoundID, 'pending'
     FROM lost l
     INNER JOIN found f ON
         l.Category = f.Category
         AND l.StudentNumber <> f.StudentNumber
         AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -3 AND 30
-        AND f.Status = 'Unclaimed'
-    WHERE l.LostID NOT IN (
-        SELECT OriginalReportID FROM history WHERE ReportType = 'Lost'
-    )
-    ORDER BY l.DateLost DESC;
+        AND f.Status = 'Unclaimed';
+END$$
+
+DROP PROCEDURE IF EXISTS sp_get_pending_matches$$
+CREATE PROCEDURE sp_get_pending_matches()
+BEGIN
+    CALL sp_sync_pending_matches();
+
+    SELECT
+        m.MatchID,
+        l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
+        l.Category, l.Description,
+        f.FoundID, f.StudentNumber AS FoundBy, f.Location AS FoundLocation,
+        f.DateFound, f.Status
+    FROM matches m
+    INNER JOIN lost l ON m.LostID = l.LostID
+    INNER JOIN found f ON m.FoundID = f.FoundID
+    WHERE m.Status = 'pending'
+    ORDER BY m.CreatedAt DESC, l.DateLost DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_reject_match$$
+CREATE PROCEDURE sp_reject_match(IN p_match_id INT, IN p_admin_id INT)
+BEGIN
+    UPDATE matches
+    SET Status = 'rejected',
+        RejectedAt = CURRENT_TIMESTAMP,
+        RejectedByAdminID = NULLIF(p_admin_id, 0)
+    WHERE MatchID = p_match_id
+      AND Status = 'pending';
+
+    IF ROW_COUNT() = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Match not found or already handled.';
+    END IF;
 END$$
 
 DROP PROCEDURE IF EXISTS sp_verify_match$$
-CREATE PROCEDURE sp_verify_match(IN p_lost_id INT, IN p_found_id INT)
+CREATE PROCEDURE sp_verify_match(IN p_match_id INT, IN p_lost_id INT, IN p_found_id INT)
 BEGIN
+    DECLARE v_resolved_match INT DEFAULT 0;
+    DECLARE v_lost_id INT DEFAULT 0;
+    DECLARE v_found_id INT DEFAULT 0;
     DECLARE v_ticket VARCHAR(10);
     DECLARE v_lost_student VARCHAR(20);
     DECLARE v_location VARCHAR(255);
@@ -149,6 +191,7 @@ BEGIN
     DECLARE v_found_desc TEXT;
     DECLARE v_match_group VARCHAR(36);
     DECLARE v_has_group TINYINT DEFAULT 0;
+    DECLARE v_has_match_id TINYINT DEFAULT 0;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -156,8 +199,26 @@ BEGIN
         RESIGNAL;
     END;
 
-    SELECT COUNT(*) INTO @lost_ok FROM lost WHERE LostID = p_lost_id;
-    SELECT COUNT(*) INTO @found_ok FROM found WHERE FoundID = p_found_id;
+    IF p_match_id > 0 THEN
+        SELECT MatchID, LostID, FoundID
+        INTO v_resolved_match, v_lost_id, v_found_id
+        FROM matches
+        WHERE MatchID = p_match_id AND Status = 'pending'
+        LIMIT 1;
+    ELSEIF p_lost_id > 0 AND p_found_id > 0 THEN
+        SELECT MatchID, LostID, FoundID
+        INTO v_resolved_match, v_lost_id, v_found_id
+        FROM matches
+        WHERE LostID = p_lost_id AND FoundID = p_found_id AND Status = 'pending'
+        LIMIT 1;
+    END IF;
+
+    IF v_resolved_match = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Match not found or already handled.';
+    END IF;
+
+    SELECT COUNT(*) INTO @lost_ok FROM lost WHERE LostID = v_lost_id;
+    SELECT COUNT(*) INTO @found_ok FROM found WHERE FoundID = v_found_id;
 
     IF @lost_ok = 0 OR @found_ok = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Lost or Found record not found.';
@@ -165,11 +226,11 @@ BEGIN
 
     SELECT TicketNumber, StudentNumber, Location, DateLost, Category, Description
     INTO v_ticket, v_lost_student, v_location, v_date_lost, v_category, v_lost_desc
-    FROM lost WHERE LostID = p_lost_id;
+    FROM lost WHERE LostID = v_lost_id;
 
     SELECT StudentNumber, Location, DateFound, Description
     INTO v_found_student, v_found_location, v_date_found, v_found_desc
-    FROM found WHERE FoundID = p_found_id;
+    FROM found WHERE FoundID = v_found_id;
 
     SET v_match_group = LOWER(UUID());
 
@@ -179,32 +240,53 @@ BEGIN
       AND TABLE_NAME = 'history'
       AND COLUMN_NAME = 'MatchGroupID';
 
+    SELECT COUNT(*) INTO v_has_match_id
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'history'
+      AND COLUMN_NAME = 'MatchID';
+
     START TRANSACTION;
 
-    IF v_has_group > 0 THEN
+    IF v_has_group > 0 AND v_has_match_id > 0 THEN
+        INSERT INTO history (MatchGroupID, MatchID, LostID, FoundID, ReportType, OriginalReportID,
+            TicketNumber, StudentNumber, Location, ReportDate, Category, Description, FinalStatus)
+        VALUES (v_match_group, v_resolved_match, v_lost_id, v_found_id, 'Lost', v_lost_id,
+            v_ticket, v_lost_student, v_location, v_date_lost, v_category, v_lost_desc, 'Retrieved');
+
+        INSERT INTO history (MatchGroupID, MatchID, LostID, FoundID, ReportType, OriginalReportID,
+            TicketNumber, StudentNumber, Location, ReportDate, Category, Description, FinalStatus)
+        VALUES (v_match_group, v_resolved_match, v_lost_id, v_found_id, 'Found', v_found_id,
+            NULL, v_found_student, v_found_location, v_date_found, v_category, v_found_desc, 'Claimed');
+    ELSEIF v_has_group > 0 THEN
         INSERT INTO history (MatchGroupID, LostID, FoundID, ReportType, OriginalReportID,
             TicketNumber, StudentNumber, Location, ReportDate, Category, Description, FinalStatus)
-        VALUES (v_match_group, p_lost_id, p_found_id, 'Lost', p_lost_id,
+        VALUES (v_match_group, v_lost_id, v_found_id, 'Lost', v_lost_id,
             v_ticket, v_lost_student, v_location, v_date_lost, v_category, v_lost_desc, 'Retrieved');
 
         INSERT INTO history (MatchGroupID, LostID, FoundID, ReportType, OriginalReportID,
             TicketNumber, StudentNumber, Location, ReportDate, Category, Description, FinalStatus)
-        VALUES (v_match_group, p_lost_id, p_found_id, 'Found', p_found_id,
+        VALUES (v_match_group, v_lost_id, v_found_id, 'Found', v_found_id,
             NULL, v_found_student, v_found_location, v_date_found, v_category, v_found_desc, 'Claimed');
     ELSE
         INSERT INTO history (ReportType, OriginalReportID, TicketNumber, StudentNumber, Location,
             ReportDate, Category, Description, FinalStatus)
-        VALUES ('Lost', p_lost_id, v_ticket, v_lost_student, v_location,
+        VALUES ('Lost', v_lost_id, v_ticket, v_lost_student, v_location,
             v_date_lost, v_category, v_lost_desc, 'Retrieved');
 
         INSERT INTO history (ReportType, OriginalReportID, TicketNumber, StudentNumber, Location,
             ReportDate, Category, Description, FinalStatus)
-        VALUES ('Found', p_found_id, NULL, v_found_student, v_found_location,
+        VALUES ('Found', v_found_id, NULL, v_found_student, v_found_location,
             v_date_found, v_category, v_found_desc, 'Claimed');
     END IF;
 
-    DELETE FROM lost WHERE LostID = p_lost_id;
-    DELETE FROM found WHERE FoundID = p_found_id;
+    UPDATE matches
+    SET Status = 'verified',
+        VerifiedAt = CURRENT_TIMESTAMP
+    WHERE MatchID = v_resolved_match;
+
+    DELETE FROM lost WHERE LostID = v_lost_id;
+    DELETE FROM found WHERE FoundID = v_found_id;
 
     COMMIT;
 END$$
@@ -294,35 +376,35 @@ DROP PROCEDURE IF EXISTS sp_admin_search_pending_matches$$
 CREATE PROCEDURE sp_admin_search_pending_matches(IN p_query VARCHAR(255))
 BEGIN
     SET p_query = TRIM(IFNULL(p_query, ''));
+
+    CALL sp_sync_pending_matches();
+
     SELECT
+        m.MatchID,
         l.LostID, l.TicketNumber, l.StudentNumber, l.Location, l.DateLost,
         l.Category, l.Description,
         f.FoundID, f.StudentNumber AS FoundBy, f.Location AS FoundLocation,
         f.DateFound, f.Status
-    FROM lost l
-    INNER JOIN studentinfo s_lost ON l.StudentNumber = s_lost.StudentNumber
-    INNER JOIN found f ON
-        l.Category = f.Category
-        AND l.StudentNumber <> f.StudentNumber
-        AND DATEDIFF(f.DateFound, l.DateLost) BETWEEN -3 AND 30
-        AND f.Status = 'Unclaimed'
-    INNER JOIN studentinfo s_found ON f.StudentNumber = s_found.StudentNumber
-    WHERE l.LostID NOT IN (
-        SELECT OriginalReportID FROM history WHERE ReportType = 'Lost'
-    )
-    AND (
+    FROM matches m
+    INNER JOIN lost l ON m.LostID = l.LostID
+    INNER JOIN found f ON m.FoundID = f.FoundID
+    LEFT JOIN studentinfo s_lost ON l.StudentNumber = s_lost.StudentNumber
+    LEFT JOIN studentinfo s_found ON f.StudentNumber = s_found.StudentNumber
+    WHERE m.Status = 'pending'
+      AND (
         p_query = ''
         OR l.TicketNumber LIKE CONCAT('%', p_query, '%')
         OR l.StudentNumber LIKE CONCAT('%', p_query, '%')
-        OR s_lost.StudentEmail LIKE CONCAT('%', p_query, '%')
+        OR IFNULL(s_lost.StudentEmail, '') LIKE CONCAT('%', p_query, '%')
         OR l.Location LIKE CONCAT('%', p_query, '%')
         OR l.Category LIKE CONCAT('%', p_query, '%')
         OR l.Description LIKE CONCAT('%', p_query, '%')
         OR f.StudentNumber LIKE CONCAT('%', p_query, '%')
-        OR s_found.StudentEmail LIKE CONCAT('%', p_query, '%')
+        OR IFNULL(s_found.StudentEmail, '') LIKE CONCAT('%', p_query, '%')
         OR f.Location LIKE CONCAT('%', p_query, '%')
-    )
-    ORDER BY l.DateLost DESC;
+        OR CAST(m.MatchID AS CHAR) LIKE CONCAT('%', p_query, '%')
+      )
+    ORDER BY m.CreatedAt DESC, l.DateLost DESC;
 END$$
 
 DELIMITER ;

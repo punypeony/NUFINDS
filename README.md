@@ -5,7 +5,7 @@
 1. Start MySQL and Apache on the XAMPP control panel.
 2. Copy the project folder into `htdocs`.
 3. Copy `config.example.php` to `config.php` and set your database credentials (defaults work for local XAMPP with `root` and no password).
-4. Import `database/nufindsdb.sql` into MySQL, then `database/notifications.sql` (student alerts), then `database/stored_procedures.sql` and `database/triggers.sql` if you use those features.
+4. Import `database/nufindsdb.sql` into MySQL, then `database/notifications.sql` (student alerts), then `database/stored_procedures.sql` and `database/triggers.sql` if you use those features. Fresh installs include the `matches` table; existing databases should run `database/matches.sql` before re-importing stored procedures.
 5. Open `http://localhost/NUFINDS/pages/login.html` (adjust the folder name if yours differs).
 
 ### Production deployment
@@ -42,13 +42,13 @@ When you enter the **admin email**, the form switches to **Admin Password**.
 | Admin email | `nufindshelpdesk@gmail.com` |
 | Password | `secret` |
 
-**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (matched pairs only), HISTORY (verified match archive, editable), NOTIFY (send messages to students). LOST, FOUND, VERIFY, and HISTORY include a search bar (ticket, student ID, email, location, category, description — not department on lost/found). Students see a **bell icon** in the top bar; new messages appear within ~12 seconds (polling) plus a toast popup. Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
+**Admin dashboard:** LOST / FOUND (view and edit reports inline), VERIFY (pending rows in the `matches` table — verify to archive or dismiss), HISTORY (verified match archive, editable), NOTIFY (send messages to students). LOST, FOUND, VERIFY, and HISTORY include a search bar (ticket, student ID, email, location, category, description — not department on lost/found). Students see a **bell icon** in the top bar; new messages appear within ~12 seconds (polling) plus a toast popup. Uses MySQL **stored procedures** and **triggers** when `stored_procedures.sql` and `triggers.sql` are imported.
 
 Re-run `database/stored_procedures.sql` in phpMyAdmin after pulling updates to add search procedures and auto student ID generation.
 
 **Students:** LOST / FOUND (submit reports) and TRACK only.
 
-When an admin verifies a match, both reports are copied to `history` and removed from `lost` / `found`.
+When an admin verifies a match, the `matches` row is marked verified, both reports are copied to `history`, and removed from `lost` / `found`. Dismissing a suggestion marks it `rejected` so it is not suggested again.
 
 Run `database/admin_accounts.sql` in phpMyAdmin if you already imported the database earlier.
 

@@ -16,11 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 SessionHelper::requireValidCsrf();
 
 $verifier = new MatchVerifier();
-$result   = $verifier->verifyMatch(
-    (int)($_POST['lost_id']  ?? 0),
-    (int)($_POST['found_id'] ?? 0),
-    (int)($_POST['match_id'] ?? 0)
-);
+$result   = $verifier->rejectMatch((int)($_POST['match_id'] ?? 0));
 
 if ($isAjax) {
     header('Content-Type: application/json');
@@ -29,7 +25,7 @@ if ($isAjax) {
 }
 
 if ($result['status'] === 'success') {
-    header('Location: verify_success.php?lost_id=' . ($_POST['lost_id'] ?? '') . '&found_id=' . ($_POST['found_id'] ?? ''));
+    header('Location: verify_matches.php?rejected=1');
 } else {
     header('Location: verify_matches.php?error=' . urlencode($result['message']));
 }

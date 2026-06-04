@@ -22,7 +22,7 @@
   <div class="admin-reports-container">
     <div class="admin-reports-header">
       <h1>Verify Matches</h1>
-      <p>Review paired lost and found reports. Confirming moves them to <a class="header-inline-link" href="<?= nufinds_admin_page('history.html') ?>">History</a>.</p>
+      <p>Review suggested pairs from the <strong>matches</strong> queue. Verify to archive in <a class="header-inline-link" href="<?= nufinds_admin_page('history.html') ?>">History</a>, or dismiss if they are not a match.</p>
     </div>
 
     <?php
@@ -36,7 +36,7 @@
         <div class="empty-state"><?= ($searchQuery ?? '') !== '' ? 'No pending matches match your search.' : 'No pending matches to verify right now.' ?></div>
       <?php else: ?>
         <?php foreach ($matches as $match): ?>
-          <article class="verify-card" data-lost-id="<?= (int)$match['LostID'] ?>">
+          <article class="verify-card" data-match-id="<?= (int)($match['MatchID'] ?? 0) ?>" data-lost-id="<?= (int)$match['LostID'] ?>">
             <header class="verify-card-head">
               <span class="verify-ticket"><?= htmlspecialchars($match['TicketNumber'], ENT_QUOTES, 'UTF-8') ?></span>
               <span class="verify-badge">Potential match</span>
@@ -64,12 +64,22 @@
               </section>
             </div>
 
-            <form class="verify-form" action="<?= nufinds_php_url('verify/verify_match.php') ?>" method="post">
-              <?= nufinds_csrf_field() ?>
-              <input type="hidden" name="lost_id" value="<?= (int)$match['LostID'] ?>">
-              <input type="hidden" name="found_id" value="<?= (int)$match['FoundID'] ?>">
-              <button type="submit" class="verify-btn">Verify match</button>
-            </form>
+            <div class="verify-form-actions">
+              <form class="verify-form" action="<?= nufinds_php_url('verify/verify_match.php') ?>" method="post">
+                <?= nufinds_csrf_field() ?>
+                <input type="hidden" name="match_id" value="<?= (int)($match['MatchID'] ?? 0) ?>">
+                <input type="hidden" name="lost_id" value="<?= (int)$match['LostID'] ?>">
+                <input type="hidden" name="found_id" value="<?= (int)$match['FoundID'] ?>">
+                <button type="submit" class="verify-btn">Verify match</button>
+              </form>
+              <?php if (!empty($match['MatchID'])): ?>
+              <form class="reject-form" action="<?= nufinds_php_url('verify/reject_match.php') ?>" method="post">
+                <?= nufinds_csrf_field() ?>
+                <input type="hidden" name="match_id" value="<?= (int)$match['MatchID'] ?>">
+                <button type="submit" class="reject-btn">Not a match</button>
+              </form>
+              <?php endif; ?>
+            </div>
           </article>
         <?php endforeach; ?>
       <?php endif; ?>

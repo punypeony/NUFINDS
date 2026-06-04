@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/DbProcedure.php';
+require_once __DIR__ . '/MatchService.php';
 
 class AdminReportService {
     private mysqli $conn;
@@ -103,6 +104,10 @@ class AdminReportService {
                     $data['Description'],
                 ]
             );
+            if ($ok) {
+                (new MatchService())->syncPending();
+            }
+
             return $ok
                 ? ['status' => 'success', 'message' => 'Lost report updated.']
                 : ['status' => 'error', 'message' => $this->conn->error];
@@ -122,23 +127,29 @@ class AdminReportService {
             $lostId
         );
 
-        return $stmt->execute()
-            ? ['status' => 'success', 'message' => 'Lost report updated.']
-            : ['status' => 'error', 'message' => $stmt->error];
+        if (!$stmt->execute()) {
+            return ['status' => 'error', 'message' => $stmt->error];
+        }
+
+        (new MatchService())->syncPending();
+
+        return ['status' => 'success', 'message' => 'Lost report updated.'];
     }
 
     public function deleteLost(int $lostId): array {
         if (DbProcedure::procedureExists($this->conn, 'sp_admin_delete_lost')) {
             DbProcedure::callVoid($this->conn, 'sp_admin_delete_lost', 'i', [$lostId]);
-            return ['status' => 'success', 'message' => 'Lost report deleted.'];
+        } else {
+            $stmt = $this->conn->prepare('DELETE FROM lost WHERE LostID = ?');
+            $stmt->bind_param('i', $lostId);
+            if (!$stmt->execute() || $stmt->affected_rows === 0) {
+                return ['status' => 'error', 'message' => 'Could not delete lost report.'];
+            }
         }
 
-        $stmt = $this->conn->prepare('DELETE FROM lost WHERE LostID = ?');
-        $stmt->bind_param('i', $lostId);
+        (new MatchService())->cleanupForLost($lostId);
 
-        return $stmt->execute() && $stmt->affected_rows > 0
-            ? ['status' => 'success', 'message' => 'Lost report deleted.']
-            : ['status' => 'error', 'message' => 'Could not delete lost report.'];
+        return ['status' => 'success', 'message' => 'Lost report deleted.'];
     }
 
     public function updateFound(int $foundId, array $data): array {
@@ -161,6 +172,10 @@ class AdminReportService {
                     $data['Status'],
                 ]
             );
+            if ($ok) {
+                (new MatchService())->syncPending();
+            }
+
             return $ok
                 ? ['status' => 'success', 'message' => 'Found report updated.']
                 : ['status' => 'error', 'message' => $this->conn->error];
@@ -180,23 +195,29 @@ class AdminReportService {
             $foundId
         );
 
-        return $stmt->execute()
-            ? ['status' => 'success', 'message' => 'Found report updated.']
-            : ['status' => 'error', 'message' => $stmt->error];
+        if (!$stmt->execute()) {
+            return ['status' => 'error', 'message' => $stmt->error];
+        }
+
+        (new MatchService())->syncPending();
+
+        return ['status' => 'success', 'message' => 'Found report updated.'];
     }
 
     public function deleteFound(int $foundId): array {
         if (DbProcedure::procedureExists($this->conn, 'sp_admin_delete_found')) {
             DbProcedure::callVoid($this->conn, 'sp_admin_delete_found', 'i', [$foundId]);
-            return ['status' => 'success', 'message' => 'Found report deleted.'];
+        } else {
+            $stmt = $this->conn->prepare('DELETE FROM found WHERE FoundID = ?');
+            $stmt->bind_param('i', $foundId);
+            if (!$stmt->execute() || $stmt->affected_rows === 0) {
+                return ['status' => 'error', 'message' => 'Could not delete found report.'];
+            }
         }
 
-        $stmt = $this->conn->prepare('DELETE FROM found WHERE FoundID = ?');
-        $stmt->bind_param('i', $foundId);
+        (new MatchService())->cleanupForFound($foundId);
 
-        return $stmt->execute() && $stmt->affected_rows > 0
-            ? ['status' => 'success', 'message' => 'Found report deleted.']
-            : ['status' => 'error', 'message' => 'Could not delete found report.'];
+        return ['status' => 'success', 'message' => 'Found report deleted.'];
     }
 
     private function fetchRows(string $sql): array {

@@ -1,16 +1,78 @@
 <?php
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/DbProcedure.php';
+require_once __DIR__ . '/SessionHelper.php';
+require_once __DIR__ . '/MatchService.php';
 
 class MatchVerifier {
     private mysqli $conn;
+    private MatchService $matches;
 
     public function __construct() {
-        $this->conn = Database::connect();
+        $this->conn     = Database::connect();
+        $this->matches  = new MatchService();
     }
 
     public function getPendingMatches(): array {
-        if (DbProcedure::procedureExists($this->conn, 'sp_get_pending_matches')) {
+        if (MatchService::tableExists($this->conn)) {
+            return $this->matches->getPendingMatches();
+        }
+
+        return $this->getPendingMatchesLegacy();
+    }
+
+    public function searchPendingMatches(string $query): array {
+        if (MatchService::tableExists($this->conn)) {
+            return $this->matches->searchPendingMatches($query);
+        }
+
+        $query = trim($query);
+        if ($query === '') {
+            return $this->getPendingMatchesLegacy();
+        }
+
+        if (MatchService::tableExists($this->conn) && DbProcedure::procedureExists($this->conn, 'sp_admin_search_pending_matches')) {
+            return DbProcedure::callRows($this->conn, 'sp_admin_search_pending_matches', 's', [$query]);
+        }
+
+        return $this->searchPendingMatchesLegacy($query);
+    }
+
+    public function verifyMatch(int $lostId, int $foundId, int $matchId = 0): array {
+        if ($lostId === 0 && $foundId === 0 && $matchId === 0) {
+            return ['status' => 'error', 'message' => 'Invalid request.'];
+        }
+
+        if (MatchService::tableExists($this->conn)) {
+            $adminId = (int)SessionHelper::get('AdminID', 0);
+
+            return $this->matches->verifyMatch(
+                $matchId,
+                $lostId,
+                $foundId,
+                $adminId > 0 ? $adminId : null
+            );
+        }
+
+        if ($lostId === 0 || $foundId === 0) {
+            return ['status' => 'error', 'message' => 'Invalid request.'];
+        }
+
+        return $this->verifyMatchLegacy($lostId, $foundId);
+    }
+
+    public function rejectMatch(int $matchId): array {
+        if (!MatchService::tableExists($this->conn)) {
+            return ['status' => 'error', 'message' => 'Matches table missing. Import database/matches.sql in phpMyAdmin.'];
+        }
+
+        $adminId = (int)SessionHelper::get('AdminID', 0);
+
+        return $this->matches->rejectMatch($matchId, $adminId > 0 ? $adminId : null);
+    }
+
+    private function getPendingMatchesLegacy(): array {
+        if (MatchService::tableExists($this->conn) && DbProcedure::procedureExists($this->conn, 'sp_get_pending_matches')) {
             return DbProcedure::callRows($this->conn, 'sp_get_pending_matches');
         }
 
@@ -40,27 +102,10 @@ class MatchVerifier {
         return $matches;
     }
 
-    public function searchPendingMatches(string $query): array {
-        $query = trim($query);
-        if ($query === '') {
-            return $this->getPendingMatches();
-        }
-
-        if (DbProcedure::procedureExists($this->conn, 'sp_admin_search_pending_matches')) {
-            return DbProcedure::callRows($this->conn, 'sp_admin_search_pending_matches', 's', [$query]);
-        }
-
-        return $this->searchPendingMatchesFallback($query);
-    }
-
-    public function verifyMatch(int $lostId, int $foundId): array {
-        if ($lostId === 0 || $foundId === 0) {
-            return ['status' => 'error', 'message' => 'Invalid request.'];
-        }
-
-        if (DbProcedure::procedureExists($this->conn, 'sp_verify_match')) {
+    private function verifyMatchLegacy(int $lostId, int $foundId): array {
+        if (MatchService::tableExists($this->conn) && DbProcedure::procedureExists($this->conn, 'sp_verify_match')) {
             try {
-                $ok = DbProcedure::callVoid($this->conn, 'sp_verify_match', 'ii', [$lostId, $foundId]);
+                $ok = DbProcedure::callVoid($this->conn, 'sp_verify_match', 'iii', [0, $lostId, $foundId]);
                 if ($ok) {
                     return ['status' => 'success', 'message' => 'Match verified and archived to history.'];
                 }
@@ -71,10 +116,6 @@ class MatchVerifier {
             }
         }
 
-        return $this->verifyMatchLegacy($lostId, $foundId);
-    }
-
-    private function verifyMatchLegacy(int $lostId, int $foundId): array {
         $this->conn->begin_transaction();
         try {
             $lostStmt = $this->conn->prepare(
@@ -116,14 +157,16 @@ class MatchVerifier {
             $this->conn->query("DELETE FROM found WHERE FoundID = {$foundId}");
 
             $this->conn->commit();
+
             return ['status' => 'success', 'message' => 'Match verified and archived to history.'];
         } catch (Exception $e) {
             $this->conn->rollback();
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
 
-    private function searchPendingMatchesFallback(string $query): array {
+    private function searchPendingMatchesLegacy(string $query): array {
         $like = '%' . $query . '%';
         $sql  = "
             SELECT

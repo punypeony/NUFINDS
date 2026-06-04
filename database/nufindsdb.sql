@@ -32,9 +32,26 @@ CREATE TABLE found (
 -- Table structure for table history
 -- --------------------------------------------------------
 
+CREATE TABLE matches (
+  MatchID int(11) NOT NULL,
+  LostID int(11) NOT NULL,
+  FoundID int(11) NOT NULL,
+  Status enum('pending','verified','rejected') NOT NULL DEFAULT 'pending',
+  CreatedAt timestamp NOT NULL DEFAULT current_timestamp(),
+  VerifiedAt timestamp NULL DEFAULT NULL,
+  RejectedAt timestamp NULL DEFAULT NULL,
+  VerifiedByAdminID int(11) DEFAULT NULL,
+  RejectedByAdminID int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Table structure for table history
+-- --------------------------------------------------------
+
 CREATE TABLE history (
   HistoryID int(11) NOT NULL,
   MatchGroupID varchar(36) DEFAULT NULL,
+  MatchID int(11) DEFAULT NULL,
   LostID int(11) DEFAULT NULL,
   FoundID int(11) DEFAULT NULL,
   ReportType enum('Lost','Found') NOT NULL,
@@ -107,9 +124,17 @@ ALTER TABLE found
   ADD PRIMARY KEY (FoundID),
   ADD KEY StudentNumber (StudentNumber);
 
+ALTER TABLE matches
+  ADD PRIMARY KEY (MatchID),
+  ADD UNIQUE KEY uq_lost_found (LostID, FoundID),
+  ADD KEY idx_status (Status),
+  ADD KEY idx_lost (LostID),
+  ADD KEY idx_found (FoundID);
+
 ALTER TABLE history
   ADD PRIMARY KEY (HistoryID),
-  ADD KEY idx_match_group (MatchGroupID);
+  ADD KEY idx_match_group (MatchGroupID),
+  ADD KEY idx_history_match (MatchID);
 
 ALTER TABLE lost
   ADD PRIMARY KEY (LostID),
@@ -126,6 +151,9 @@ ALTER TABLE studentinfo
 
 ALTER TABLE found
   MODIFY FoundID int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE matches
+  MODIFY MatchID int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE history
   MODIFY HistoryID int(11) NOT NULL AUTO_INCREMENT;
@@ -174,10 +202,15 @@ INSERT INTO found (FoundID, StudentNumber, Location, DateFound, Category, Descri
 (1, '2024-1009012', 'Library Area', '2026-05-15', 'Wallet/Credit Card/Money', 'Found black wallet near circulation desk with ID inside', 'Unclaimed', '2026-05-16 11:00:00'),
 (2, '2024-1003456', 'Engineering Wing', '2026-05-14', 'Electronics/Gadgets', 'Found blue earbuds in white case on desk in hallway', 'Unclaimed', '2026-05-15 10:15:00');
 
+INSERT INTO matches (MatchID, LostID, FoundID, Status) VALUES
+(1, 1, 1, 'pending'),
+(2, 2, 2, 'pending');
+
 COMMIT;
 
 -- After import, run (separately in phpMyAdmin):
---   database/history_match_group.sql  (if upgrading an older DB)
+--   database/history_match_group.sql  (if upgrading an older DB without MatchGroupID)
+--   database/matches.sql            (if upgrading an older DB without matches table)
 --   database/stored_procedures.sql
 --   database/triggers.sql
 

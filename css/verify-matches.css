@@ -123,11 +123,21 @@
   border-radius: 8px;
 }
 
-.verify-btn {
+.verify-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verify-form,
+.reject-form {
+  margin: 0;
+}
+
+.verify-btn,
+.reject-btn {
   width: 100%;
   padding: 14px;
-  background: #25358c;
-  color: #fff;
   border: none;
   border-radius: 10px;
   font-size: 16px;
@@ -135,8 +145,23 @@
   cursor: pointer;
 }
 
+.verify-btn {
+  background: #25358c;
+  color: #fff;
+}
+
 .verify-btn:hover {
   background: #1d2a6f;
+}
+
+.reject-btn {
+  background: #fff;
+  color: #c0392b;
+  border: 2px solid #c0392b;
+}
+
+.reject-btn:hover {
+  background: #fdecea;
 }
 
 .verify-page .popup {

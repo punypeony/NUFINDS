@@ -3,7 +3,7 @@
 ## Overview
 - **Database name:** `nufindsdb`
 - **Primary purpose:** Store student accounts, lost/found item reports, and resolved match history.
-- **Main entities:** `studentinfo`, `lost`, `found`, `history`
+- **Main entities:** `studentinfo`, `lost`, `found`, `matches`, `history`
 - **File source of truth:** `database/nufindsdb.sql`
 
 ## Shared Business Rules
@@ -76,6 +76,26 @@ Stores active found item reports submitted by logged-in students.
 
 ### Notes
 - Matching and unmatched views primarily operate on rows where `Status = 'Unclaimed'`.
+
+## Table: `matches`
+Working queue of suggested lost/found pairs before admin decision.
+
+| Column | Type | Null | Key | Default | Description |
+|---|---|---|---|---|---|
+| `MatchID` | `int(11)` | NO | PK, AI | auto increment | Internal identifier for each suggested pair. |
+| `LostID` | `int(11)` | NO | UNIQUE (with FoundID) | none | Lost report in the pair. |
+| `FoundID` | `int(11)` | NO | UNIQUE (with LostID) | none | Found report in the pair. |
+| `Status` | `enum('pending','verified','rejected')` | NO |  | `pending` | `pending` = awaiting admin; `verified` = archived to history; `rejected` = dismissed, reports stay active. |
+| `CreatedAt` | `timestamp` | NO |  | `current_timestamp()` | When the suggestion was created. |
+| `VerifiedAt` | `timestamp` | YES |  | `NULL` | When admin verified the pair. |
+| `RejectedAt` | `timestamp` | YES |  | `NULL` | When admin dismissed the pair. |
+| `VerifiedByAdminID` | `int(11)` | YES |  | `NULL` | Admin who verified (optional). |
+| `RejectedByAdminID` | `int(11)` | YES |  | `NULL` | Admin who rejected (optional). |
+
+### Notes
+- Rows are created by sync logic when `lost` and `found` meet category/date/student rules.
+- Verify moves reports to `history`, marks the match `verified`, and deletes active `lost`/`found` rows.
+- Reject marks the match `rejected` so the same pair is not suggested again.
 
 ## Table: `history`
 Archive table for completed/verified matches. Rows are inserted when a lost-found pair is verified, then original rows are removed from active tables.
