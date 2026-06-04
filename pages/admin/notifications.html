@@ -43,11 +43,11 @@ extract(nufinds_page_entry('admin-notifications'), EXTR_OVERWRITE);
       <label for="notify-message">Message</label>
       <textarea id="notify-message" name="message" required placeholder="Write what students should see…"></textarea>
 
-      <span class="notify-form-card label-block">Send to</span>
-      <div class="notify-audience">
-        <label><input type="radio" name="audience" value="one" checked> One student</label>
-        <label><input type="radio" name="audience" value="all"> All students</label>
-      </div>
+      <label for="notify-audience">Send to</label>
+      <select id="notify-audience" name="audience">
+        <option value="one" selected>One student</option>
+        <option value="all">All students</option>
+      </select>
 
       <div id="notify-target-wrap" class="notify-target-wrap">
         <label for="notify-target">Student ID or email</label>

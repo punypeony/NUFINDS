@@ -116,46 +116,26 @@
 }
 
 .user-notify-dialog {
-  background: #fff;
-  border-radius: 14px;
-  padding: 24px;
-  width: min(480px, 100%);
+  width: min(720px, 100%);
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0;
 }
 
-.user-notify-dialog h2 {
+.user-notify-dialog.notify-form-card label {
+  margin-top: 0;
+}
+
+.user-notify-heading {
   color: #25358c;
-  margin-bottom: 8px;
-}
-
-.user-notify-dialog label {
-  display: block;
-  margin-top: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-}
-
-.user-notify-dialog input,
-.user-notify-dialog select,
-.user-notify-dialog textarea {
-  display: block;
-  width: 100%;
-  margin-top: 4px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 14px;
+  font-size: 22px;
+  margin-bottom: 4px;
+  padding-right: 32px;
 }
 
 .user-notify-target-meta {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .user-notify-close {

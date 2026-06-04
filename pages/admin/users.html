@@ -125,19 +125,19 @@ extract(nufinds_page_entry('admin-users'), EXTR_OVERWRITE);
 </div>
 
 <div id="user-notify-modal" class="user-notify-modal hidden" aria-hidden="true">
-  <div class="user-notify-dialog" role="dialog" aria-labelledby="user-notify-title-label">
+  <div class="user-notify-dialog notify-form-card" role="dialog" aria-labelledby="user-notify-title-label">
     <button type="button" class="user-notify-close" aria-label="Close">&times;</button>
-    <h2 id="user-notify-title-label">Notify student</h2>
-    <p class="user-notify-target-meta"></p>
+    <h2 id="user-notify-title-label" class="user-notify-heading">Notify student</h2>
+    <p class="user-notify-target-meta notify-recent-meta"></p>
 
     <label for="user-notify-preset">Message template</label>
     <select id="user-notify-preset"></select>
 
     <label for="user-notify-title">Title</label>
-    <input type="text" id="user-notify-title" maxlength="120" required>
+    <input type="text" id="user-notify-title" maxlength="120" required placeholder="e.g. Potential match found">
 
     <label for="user-notify-message">Message</label>
-    <textarea id="user-notify-message" rows="4" required></textarea>
+    <textarea id="user-notify-message" required placeholder="Write what students should see…"></textarea>
 
     <p id="user-notify-status" class="notify-recent-meta" aria-live="polite"></p>
 

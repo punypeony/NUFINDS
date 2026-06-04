@@ -237,23 +237,6 @@
   resize: vertical;
 }
 
-.notify-audience {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.notify-audience label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-  cursor: pointer;
-}
-
 .notify-target-wrap.hidden {
   display: none;
 }

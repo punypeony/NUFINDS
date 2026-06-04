@@ -7,6 +7,7 @@
   const presetSelect = document.getElementById('notify-preset');
   const titleInput = document.getElementById('notify-title');
   const messageInput = document.getElementById('notify-message');
+  const audienceSelect = document.getElementById('notify-audience');
   const targetWrap = document.getElementById('notify-target-wrap');
   const targetInput = document.getElementById('notify-target');
   const recentList = document.getElementById('notify-recent-list');
@@ -58,8 +59,7 @@
   }
 
   function audience() {
-    const checked = form.querySelector('input[name="audience"]:checked');
-    return checked ? checked.value : 'one';
+    return audienceSelect ? audienceSelect.value : 'one';
   }
 
   function toggleTarget() {
@@ -91,9 +91,9 @@
     });
   }
 
-  form.querySelectorAll('input[name="audience"]').forEach(function (radio) {
-    radio.addEventListener('change', toggleTarget);
-  });
+  if (audienceSelect) {
+    audienceSelect.addEventListener('change', toggleTarget);
+  }
 
   if (presetSelect) {
     presetSelect.addEventListener('change', function () {
