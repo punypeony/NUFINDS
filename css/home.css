@@ -237,10 +237,14 @@ body{
 }
 
 .found,
-.notify,
-.users{
+.notify{
   background:#f2c100;
   color:#25358c;
+}
+
+.users{
+  background:#25358c;
+  color:#f2c100;
 }
 
 .track{

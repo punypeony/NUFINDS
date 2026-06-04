@@ -9,13 +9,18 @@
       profileDropdown.classList.toggle('open');
     });
 
+    profileDropdown.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
     document.addEventListener('click', function () {
       profileDropdown.classList.remove('open');
     });
   }
 
   if (logoutBtn && logoutBtn.dataset.logoutUrl) {
-    logoutBtn.addEventListener('click', function () {
+    logoutBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
       window.location.replace(logoutBtn.dataset.logoutUrl);
     });
   }

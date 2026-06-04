@@ -53,6 +53,12 @@ body{
     top:0;
     z-index:1000;
 }
+
+.topbar-user,
+.profile-menu{
+    position:relative;
+    z-index:1002;
+}
 .logo-img{
     height:32px;
 }
